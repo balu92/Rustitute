@@ -26,6 +26,8 @@ namespace Rustitute
 
                 try
                 {
+                    SetSetting("user_" + de.Victim.SteamID, "lastDeath", Epoch().ToString());
+
                     if (attacker != null && de.Victim.basePlayer.IsSleeping())
                     {
                         sleeping = " while they were sleeping";

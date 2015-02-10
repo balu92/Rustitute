@@ -39,11 +39,20 @@ namespace Rustitute
             }
 
             string text2 = string.Format("<color={2}>{0}</color>  {1}", fromName.Replace('<', ' ').Replace('>', ' '), message.Replace('<', ' ').Replace('>', ' '), arg2);
-            
-            if(to == null)
+
+            if (to == null)
+            {
                 ConsoleSystem.Broadcast("chat.add", userID, text2);
+                Debug.Log("[CHAT] " + fromName + ": " + message);
+            }
             else
                 to.basePlayer.SendConsoleCommand("chat.add", userID, text2);
+        }
+
+        private int Epoch()
+        {
+            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            return (int)t.TotalSeconds;
         }
 
         private void Heal(Player player)
