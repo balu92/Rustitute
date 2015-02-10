@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Pluton;
 using Pluton.Events;
 using UnityEngine;
 
@@ -42,14 +43,21 @@ namespace Rustitute
                 }
                 catch (Exception ex) { }
 
-                if (arenaPart && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "koall"))
+                Player attacker = null;
+                try
+                {
+                    attacker = he.Attacker.ToPlayer();
+                }
+                catch (Exception ex) { }
+
+                if (arenaPart && attacker != null && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "koall"))
                 {
                     if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
                     {
                         KOAll(he.Victim.Location);
                     }
                 }
-                else if (arenaPart && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "ko"))
+                else if (arenaPart && attacker != null && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "ko"))
                 {
                     if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
                     {
@@ -60,16 +68,28 @@ namespace Rustitute
                 {
                     if (Vector2.Distance(arenaLocation, new Vector2(he.Victim.Location.x, he.Victim.Location.z)) <= arenaBuildRestrictionSpace)
                     {
-                        if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "arenabuild"))
+                        if (attacker == null || !GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "arenabuild"))
                         {
-                            he.Victim.ToBuildingPart().buildingBlock.InitializeHealth(100000f, 100000f);
-                            if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
-                                SendMessage(he.Attacker.ToPlayer(), null, "You cannot damage the arena!");
+                            for (int i = 0; i < he.DamageAmounts.Count(); i++)
+                            {
+                                he.DamageAmounts[i] = 0;
+                            }
+
+                            he.Victim.ToBuildingPart().Health += 100000f;
+
+                            //he.Victim.ToBuildingPart().buildingBlock.InitializeHealth(100000f, 100000f);
+
+                            if(attacker != null)
+                                if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
+                                    SendMessage(he.Attacker.ToPlayer(), null, "You cannot damage the arena!");
                         }
                     }
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                //SendMessageToAdmins(ex.ToString());
+            }
         }
     }
 }

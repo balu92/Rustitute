@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Pluton;
 using Pluton.Events;
 using Rust;
 using UnityEngine;
@@ -14,11 +15,18 @@ namespace Rustitute
         {
             try
             {
+                Player attacker = null;
+                try
+                {
+                    attacker = de.Attacker.ToPlayer();
+                }
+                catch (Exception ex) { }
+
                 string sleeping = "";
 
                 try
                 {
-                    if (de.Victim.basePlayer.IsSleeping())
+                    if (attacker != null && de.Victim.basePlayer.IsSleeping())
                     {
                         sleeping = " while they were sleeping";
 
@@ -38,7 +46,7 @@ namespace Rustitute
                 catch (Exception ex) { }
 
                 var arena = "";
-                if (GetSettingBool("user_" + de.Attacker.ToPlayer().SteamID, "inArena"))
+                if (attacker != null && GetSettingBool("user_" + de.Attacker.ToPlayer().SteamID, "inArena"))
                     arena = "[ARENA] ";
 
                 try
@@ -63,7 +71,7 @@ namespace Rustitute
 
                 if (de.DamageType == DamageType.Bullet || de.DamageType == DamageType.Slash || de.DamageType == DamageType.Blunt || de.DamageType == DamageType.Bleeding)
                 {
-                    if (de.Victim.SteamID.Length > 0 && de.Attacker.ToPlayer().SteamID.Length > 0)
+                    if (attacker != null && de.Victim.SteamID.Length > 0 && de.Attacker.ToPlayer().SteamID.Length > 0)
                     {
                         if (de.DamageType == DamageType.Bleeding)
                             SendMessage(null, null, arena + de.Victim.Name + " bled to death");
