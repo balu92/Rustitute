@@ -12,7 +12,8 @@ namespace Rustitute
         private float arenaBuildRestrictionSpace = 300f;
         private Timer workTimer = new Timer();
         private Timer lanternTimer = new Timer();
-        private static List<DeployedItem> lanternList = new List<DeployedItem>();
+        // :(
+        //private static List<DeployedItem> lanternList = new List<DeployedItem>();
         private IniParser ini;
         private IniParser iniArena;
 

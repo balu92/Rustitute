@@ -107,7 +107,8 @@ namespace Rustitute
                 try
                 {
                     if ((collider.gameObject.GetComponentInParent<BuildingBlock>()) ||
-                        (collider.gameObject.GetComponentInParent<DeployedItem>()) ||
+                        // :(
+                        //(collider.gameObject.GetComponentInParent<DeployedItem>()) ||
                         (collider.gameObject.GetComponentInParent<StorageContainer>()) ||
                         (collider.gameObject.GetComponentInParent<WorldItem>()) ||
                         (collider.gameObject.GetComponentInParent<WorldItem_EnableDisable>()) ||
@@ -169,7 +170,8 @@ namespace Rustitute
                 try
                 {
                     if ((collider.gameObject.GetComponentInParent<BuildingBlock>()) ||
-                        (collider.gameObject.GetComponentInParent<DeployedItem>()) ||
+                        // :(
+                        //(collider.gameObject.GetComponentInParent<DeployedItem>()) ||
                         (collider.gameObject.GetComponentInParent<StorageContainer>()) ||
                         (collider.gameObject.GetComponentInParent<WorldItem>()) ||
                         (collider.gameObject.GetComponentInParent<WorldItem_EnableDisable>()) ||

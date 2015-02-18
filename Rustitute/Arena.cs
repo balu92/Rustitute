@@ -164,7 +164,8 @@ namespace Rustitute
                             try
                             {
                                 if ((collider.gameObject.GetComponentsInParent<BuildingBlock>().Any()) ||
-                                    (collider.gameObject.GetComponentsInParent<DeployedItem>().Any()) ||
+                                    // :(
+                                    //(collider.gameObject.GetComponentsInParent<DeployedItem>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<StorageContainer>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<FakePhysics>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<WorldItem_EnableDisable>().Any()) ||
@@ -247,6 +248,8 @@ namespace Rustitute
                         //Debug.Log("d1: " + ex.ToString());
                     }
                 }
+                // :(
+                /*
                 else if ((part["name"].Str == "items/lantern_deployed") || (part["name"].Str == "Lantern (world)"))
                 {
                     try
@@ -271,6 +274,7 @@ namespace Rustitute
                         //Debug.Log("d2: " + ex.ToString());
                     }
                 }
+                */
             }
 
             SendMessage(cmd.User, null, "Arena Spawned!");
@@ -278,7 +282,8 @@ namespace Rustitute
 
         private void DestroyArena(CommandEvent cmd)
         {
-            lanternList.Clear();
+            // :(
+            //lanternList.Clear();
 
             float x = float.Parse(GetSetting("Arena", "locationX"));
             float y = float.Parse(GetSetting("Arena", "locationY"));
@@ -458,11 +463,14 @@ namespace Rustitute
             {
                 bool lightsOn = (World.Time >= 17.5 || World.Time <= 5.5f);
 
+                // :(
+                /*
                 foreach (var lantern in lanternList)
                 {
                     lantern.item.SwitchOnOff(lightsOn, new BasePlayer());
                     lantern.item.dirty = true;
                 }
+                */
             }
             catch (Exception ex)
             {
@@ -477,6 +485,8 @@ namespace Rustitute
             CreateArenaSpawnTimer(player.SteamID, 1000, 1);
         }
 
+        // :(
+        /*
         private List<DeployedItem> GetArenaLanterns()
         {
             List<DeployedItem> lanterns = new List<DeployedItem>();
@@ -508,6 +518,7 @@ namespace Rustitute
 
             return lanterns;
         }
+        */
 
         private IDictionary<string, string> PlayersInArena()
         {
@@ -560,6 +571,8 @@ namespace Rustitute
                 location = item.transform.position;
                 rotation = item.transform.rotation;
             }
+            // :(
+            /*
             else if (collider.gameObject.GetComponentsInParent<DeployedItem>().Any())
             {
                 WorldItem item = collider.GetComponentInParent<WorldItem>();
@@ -569,6 +582,7 @@ namespace Rustitute
                 location = item.transform.position;
                 rotation = item.transform.rotation;
             }
+            */
             else if (collider.gameObject.GetComponentsInParent<FakePhysics>().Any())
             {
                 WorldItem item = collider.GetComponentInParent<WorldItem>();

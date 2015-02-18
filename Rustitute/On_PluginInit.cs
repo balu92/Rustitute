@@ -20,7 +20,8 @@ namespace Rustitute
 
             LoadSettings();
 
-            lanternList = GetArenaLanterns();
+            // :(
+            //lanternList = GetArenaLanterns();
 
             workTimer.Interval = 1000 * 60 * 5;
             workTimer.Elapsed += (sender, e) => { Work(); };
