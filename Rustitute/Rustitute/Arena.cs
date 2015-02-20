@@ -235,8 +235,22 @@ namespace Rustitute
                         ent.SpawnAsMapEntity();
 
                         var block = (BuildingBlock)ent;
-                        //MaxGrade(block);
-                        block.grade = Int32.Parse(part["grade"].Number.ToString());
+
+                        if (cmd.quotedArgs.Any())
+                        {
+                            int newGrade = Convert.ToInt32(cmd.quotedArgs[0]);
+                            int grade = ((int) block.blockDefinition.grades.Length) - 1;
+
+                            if (newGrade <= grade && grade >= 0)
+                                block.grade = newGrade;
+                            else
+                                block.grade = grade;
+                        }
+                        else
+                        {
+                            block.grade = Int32.Parse(part["grade"].Number.ToString());
+                        }
+
                         try
                         {
                             block.Heal(100000f);
