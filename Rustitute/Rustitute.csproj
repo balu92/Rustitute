@@ -34,9 +34,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>.\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Facepunch">
-      <HintPath>.\Facepunch.dll</HintPath>
-    </Reference>
     <Reference Include="Pluton">
       <HintPath>.\Pluton.dll</HintPath>
     </Reference>

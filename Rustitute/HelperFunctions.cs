@@ -121,7 +121,7 @@ namespace Rustitute
                             if (!baseEntity.isDestroyed)
                             {
                                 baseEntity.SendMessage("PreDie", SendMessageOptions.DontRequireReceiver);
-                                baseEntity.Kill(EntityDestroy.Mode.Gib, 0, 0f, new Vector3());
+                                baseEntity.Kill(BaseNetworkable.DestroyMode.Gib);
                             }
                         }
                     }
@@ -151,7 +151,7 @@ namespace Rustitute
                             if (!baseEntity.isDestroyed)
                             {
                                 baseEntity.SendMessage("PreDie", SendMessageOptions.DontRequireReceiver);
-                                baseEntity.Kill(EntityDestroy.Mode.Gib, 0, 0f, new Vector3());
+                                baseEntity.Kill(BaseNetworkable.DestroyMode.Gib);
                             }
                         }
                     }
@@ -185,7 +185,7 @@ namespace Rustitute
                             {
                                 var nextLocation = collider.transform.position;
                                 baseEntity.SendMessage("PreDie", SendMessageOptions.DontRequireReceiver);
-                                baseEntity.Kill(EntityDestroy.Mode.Gib, 0, 0f, new Vector3());
+                                baseEntity.Kill(BaseNetworkable.DestroyMode.Gib);
 
                                 KOAll(nextLocation);
                             }
