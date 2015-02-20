@@ -36,8 +36,9 @@ namespace Rustitute
 
             if (GetSettingBool("user_" + be.Builder.SteamID, "instamax"))
             {
+                InstaMax(be.BuildingPart);
                 //MaxGrade(be.BuildingPart.buildingBlock);
-                be.BuildingPart.buildingBlock.startHealth = 100000f;
+                //be.BuildingPart.buildingBlock.startHealth = 100000f;
             }
             else if (GetSettingBool("user_" + be.Builder.SteamID, "instabuild"))
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Pluton;
 using ProtoBuf;
 using UnityEngine;
@@ -13,40 +14,26 @@ namespace Rustitute
     {
         private void SendMessage(Player to, Player from, string message)
         {
-            ulong userID = 0;
             string fromName = botName;
-            string arg2 = "#5af"; // blue
-            if (from == null)
-            {
-                arg2 = "#af5"; // green
-            }
-            else if (DeveloperList.IsDeveloper(from.basePlayer))
-            {
-                userID = from.basePlayer.userID;
-                fromName = from.basePlayer.displayName;
-                arg2 = "#fa5"; // orange
-            }
-            else if (from.basePlayer.IsAdmin())
-            {
-                userID = from.basePlayer.userID;
-                fromName = from.basePlayer.displayName;
-                arg2 = "#af5"; // green
-            }
-            else
-            {
-                userID = from.basePlayer.userID;
-                fromName = from.basePlayer.displayName;
-            }
-
-            string text2 = string.Format("<color={2}>{0}</color>  {1}", fromName.Replace('<', ' ').Replace('>', ' '), message.Replace('<', ' ').Replace('>', ' '), arg2);
+            if (from != null)
+                fromName = from.Name;
 
             if (to == null)
             {
-                ConsoleSystem.Broadcast("chat.add", userID, text2);
+                if(from == null)
+                    Server.BroadcastFrom(botName, message);
+                else
+                    Server.BroadcastFrom(from.Name, message);
+
                 Debug.Log("[CHAT] " + fromName + ": " + message);
             }
             else
-                to.basePlayer.SendConsoleCommand("chat.add", userID, text2);
+            {
+                if(from == null)
+                    to.MessageFrom(botName, message);
+                else
+                    to.MessageFrom(from.Name, message);
+            }
         }
 
         private int Epoch()
@@ -66,9 +53,24 @@ namespace Rustitute
 
         private void InstaMax(BuildingPart part)
         {
-            MaxGrade(part.buildingBlock);
-            part.buildingBlock.startHealth = 100000f;
-            part.buildingBlock.Heal(100000f);
+            BuildingPartTimer state = new BuildingPartTimer();
+            state.part = part;
+            state.Timer = null;
+
+            state.Timer = new System.Threading.Timer(InstaMaxTimer, state, 50, Timeout.Infinite);
+        }
+
+        private void InstaMaxTimer(object stateInfo)
+        {
+            BuildingPartTimer state = (BuildingPartTimer)stateInfo;
+            state.Timer.Dispose();
+
+            try
+            {
+                MaxGrade(state.part.buildingBlock);
+                state.part.buildingBlock.SetHealthToMax();
+            }
+            catch (Exception ex) { }
         }
 
         private void MaxGrade(BuildingBlock block)
@@ -78,8 +80,7 @@ namespace Rustitute
             if (grade == block.grade)
                 return;
 
-            block.grade = grade;
-            block.baseProtection = block.blockDefinition.grades[block.grade].damageProtecton;
+            block.SetGrade(grade);
         }
 
         private void SetGrade(BuildingBlock block, int grade)
@@ -114,36 +115,6 @@ namespace Rustitute
                         (collider.gameObject.GetComponentInParent<WorldItem_EnableDisable>()) ||
                         (collider.name.StartsWith("items/"))
                         )
-                    {
-                        BaseEntity baseEntity = collider.gameObject.ToBaseEntity();
-                        if (baseEntity != null)
-                        {
-                            if (!baseEntity.isDestroyed)
-                            {
-                                baseEntity.SendMessage("PreDie", SendMessageOptions.DontRequireReceiver);
-                                baseEntity.Kill(BaseNetworkable.DestroyMode.Gib);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex) { }
-            }
-        }
-
-        private void DestroyLanterns(Vector3 location, float radius)
-        {
-            Collider[] castHits = Physics.OverlapSphere(location, radius);
-
-            if (castHits.Count() >= 128)
-            {
-                SendMessageToAdmins("WARNING: Hits >= 128! Some items may not have destroyed at position " + location);
-            }
-
-            foreach (Collider collider in castHits)
-            {
-                try
-                {
-                    if ((collider.name == "items/lantern_deployed") || (collider.name == "Lantern (world)"))
                     {
                         BaseEntity baseEntity = collider.gameObject.ToBaseEntity();
                         if (baseEntity != null)

@@ -52,7 +52,7 @@ namespace Rustitute
                 String playersWithInfo = "";
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
                 {
-                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + Server.ActivePlayers[i].Health + ",D:" + Int32.Parse(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location).ToString()) + "). ";
+                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + Convert.ToInt32(Server.ActivePlayers[i].Health) + ",D:" + Int32.Parse(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location).ToString()) + "). ";
                 }
                 SendMessage(cmd.User, null, "Online players: " + playersWithInfo);
             }
@@ -462,19 +462,6 @@ namespace Rustitute
                     SendMessage(cmd.User, null, "You can now build at the arena!");
                 }
             }
-            else if (cmd.cmd == "instabuild" && cmd.User.Owner)
-            {
-                if (GetSettingBool("user_" + cmd.User.SteamID, "instabuild"))
-                {
-                    SetSettingBool("user_" + cmd.User.SteamID, "instabuild", false);
-                    SendMessage(cmd.User, null, "Instabuild disabled!");
-                }
-                else
-                {
-                    SetSettingBool("user_" + cmd.User.SteamID, "instabuild", true);
-                    SendMessage(cmd.User, null, "Instabuild enabled!");
-                }
-            }
             else if (cmd.cmd == "instamax" && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "instamax"))
@@ -531,13 +518,6 @@ namespace Rustitute
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     DestroyEverything(cmd.User.Location, float.Parse(cmd.quotedArgs[0]));
-                }
-            }
-            else if (cmd.cmd == "destroylantern" && cmd.User.Owner)
-            {
-                if (cmd.quotedArgs.Count() == 1)
-                {
-                    DestroyLanterns(cmd.User.Location, float.Parse(cmd.quotedArgs[0]));
                 }
             }
             else if (cmd.cmd == "top10")
@@ -754,58 +734,7 @@ namespace Rustitute
             }
             else if (cmd.cmd == "test" && cmd.User.Owner)
             {
-                /*
-                Vector3 origin = cmd.User.Location;
-                Collider[] castHits = Physics.OverlapSphere(origin, 8f);
 
-                foreach (Collider collider in castHits)
-                {
-                    try
-                    {
-                        if (true)
-                        {
-                            if (collider.name.Contains("lantern"))
-                            {
-                                SendMessage(cmd.User, null, collider.name);
-                                Deployable item = collider.GetComponent<Deployable>();
-                                //item.
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        SendMessage(cmd.User, null, ex.Message);
-                    }
-                }
-                */
-
-                //if ((part["name"].Str == "items/lantern_deployed") || (part["name"].Str == "Lantern (world)"))
-                //{
-                    try
-                    {
-                        Quaternion rot = cmd.User.basePlayer.transform.rotation;
-                        Vector3 pos = new Vector3(cmd.User.Location.x, cmd.User.Location.y + 1, cmd.User.Location.x);
-
-                        BaseEntity ent = GameManager.server.CreateEntity("items/lantern_deployed", pos, rot);
-
-                        var deployedItem = ent.GetComponent<Deployable>();
-                        var newItem = ItemManager.CreateByName("lantern");
-
-                        deployedItem.SendMessage("SetDeployedBy", cmd.User.basePlayer, UnityEngine.SendMessageOptions.DontRequireReceiver);
-                        deployedItem.SendMessage("InitializeItem", newItem, UnityEngine.SendMessageOptions.DontRequireReceiver);
-
-                        ent.Spawn(true);
-                        newItem.SetWorldEntity(ent);
-
-                        //newItem.OnDirty += item_OnDirty;
-
-                        //lanternList.Add(deployedItem);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log("[test] " + ex.ToString());
-                    }
-                //}
             }
         }
     }

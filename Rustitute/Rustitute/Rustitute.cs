@@ -23,6 +23,12 @@ namespace Rustitute
             public int count { get; set; }
         }
 
+        private class BuildingPartTimer
+        {
+            public BuildingPart part{ get; set; }
+            public System.Threading.Timer Timer { get; set; }
+        }
+
         private void Work()
         {
             for (var i = 0; i < Server.ActivePlayers.Count; i++)
@@ -94,12 +100,10 @@ namespace Rustitute
                 SendMessage(player, null, "  /koall - Toggle KO All mode. Make sure no other building part is within 10m of what you are destroying.");
                 SendMessage(player, null, "  /god <optionalUser> - Toggle god mode.");
                 SendMessage(player, null, "  /motd <optionalMotd> - Set or remove the motd.");
-                SendMessage(player, null, "  /instabuild - Toggle instant building.");
                 SendMessage(player, null, "  /instamax - Toggle building parts being placed at maximum grade (stone, metal, etc).");
                 SendMessage(player, null, "  /copy <distance> - Enable copy mode. No arg to disable. Shoot a block to copy it by this distance.");
                 SendMessage(player, null, "  /arenabuild - Allow yourself to build at the arena.");
                 SendMessage(player, null, "  /destroy <distance> - Destroy all objects within a radius of you.");
-                SendMessage(player, null, "  /destroylantern <distance> - Destroy all lanterns within a radius of you.");
                 SendMessage(player, null, "  /save - Save all Rustitute data");
                 SendMessage(player, null, "  /load - Load all Rustitute data without saving first.");
                 SendMessage(player, null, "  /kick <user> - Kick this user off the server.");
