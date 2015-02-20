@@ -38,7 +38,6 @@ namespace Rustitute
                 bool hasKO = GetSettingBool("user_" + player.SteamID, "ko");
                 bool hasKOAll = GetSettingBool("user_" + player.SteamID, "koall");
                 bool hasArenaBuild = GetSettingBool("user_" + player.SteamID, "arenabuild");
-                bool hasInstaBuild = GetSettingBool("user_" + player.SteamID, "instabuild");
                 bool hasInstaMax = GetSettingBool("user_" + player.SteamID, "instamax");
                 bool hasCopy = GetSettingInt("user_" + player.SteamID, "copy") != 0;
 
@@ -50,8 +49,6 @@ namespace Rustitute
                     SendMessage(player, null, "[Reminder] KO All mode is active!");
                 if (hasArenaBuild)
                     SendMessage(player, null, "[Reminder] Arena build mode is active!");
-                if (hasInstaBuild)
-                    SendMessage(player, null, "[Reminder] Instabuild mode is active!");
                 if (hasInstaMax)
                     SendMessage(player, null, "[Reminder] Insta Max mode is active!");
                 if (hasCopy)

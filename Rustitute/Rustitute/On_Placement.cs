@@ -15,8 +15,8 @@ namespace Rustitute
             {
                 if (server.stability == false)
                 {
-                    be.Destroy("Sorry, you cannot build on this server. Type /arena to join our arena!");
-                    return;
+                    //be.Destroy("Sorry, you cannot build on this server. Type /arena to join our arena!");
+                    //return;
                 }
             }
 
@@ -37,12 +37,6 @@ namespace Rustitute
             if (GetSettingBool("user_" + be.Builder.SteamID, "instamax"))
             {
                 InstaMax(be.BuildingPart);
-                //MaxGrade(be.BuildingPart.buildingBlock);
-                //be.BuildingPart.buildingBlock.startHealth = 100000f;
-            }
-            else if (GetSettingBool("user_" + be.Builder.SteamID, "instabuild"))
-            {
-                be.BuildingPart.buildingBlock.startHealth = 100000f;
             }
         }
     }
