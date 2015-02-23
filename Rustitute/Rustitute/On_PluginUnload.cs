@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Rustitute
+﻿namespace Rustitute
 {
     partial class Rustitute
     {
@@ -11,9 +6,16 @@ namespace Rustitute
         {
             workTimer.Close();
             lanternTimer.Close();
+            campingTimer.Close();
+
+            if (disappearTimer != null)
+                disappearTimer.Close();
 
             ini.Save();
             iniArena.Save();
+
+            GlobalData["Rustitute_disappearList"] = disappearList;
+            GlobalData["Rustitute_disappearUnique"] = disappearUnique;
         }
     }
 }

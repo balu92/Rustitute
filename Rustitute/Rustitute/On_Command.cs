@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using Pluton;
 using Pluton.Events;
-using ProtoBuf;
 using UnityEngine;
 
 namespace Rustitute
@@ -52,7 +51,10 @@ namespace Rustitute
                 String playersWithInfo = "";
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
                 {
-                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + Convert.ToInt32(Server.ActivePlayers[i].Health) + ",D:" + Int32.Parse(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location).ToString()) + "). ";
+                    var health = Convert.ToInt32(Server.ActivePlayers[i].Health);
+                    var distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location));
+
+                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + health + ",D:" + distance + "). ";
                 }
                 SendMessage(cmd.User, null, "Online players: " + playersWithInfo);
             }
@@ -73,6 +75,13 @@ namespace Rustitute
             }
             else if (cmd.cmd == "tphome")
             {
+                int lastAttacked = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastAttacked"));
+                if (lastAttacked <= 15)
+                {
+                    SendMessage(cmd.User, null, "You cannot teleport while under attack!");
+                    return;
+                }
+
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
                     SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
@@ -95,6 +104,12 @@ namespace Rustitute
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
                     SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    return;
+                }
+
+                if (IsInArena(cmd.User.Location))
+                {
+                    SendMessage(cmd.User, null, "You cannot set your home position this close to the arena!");
                     return;
                 }
 
@@ -137,7 +152,7 @@ namespace Rustitute
 
                     if (GetSettingBool("user_" + secondPlayer.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, secondPlayer.Name + " is in the arena and cannot be teleported!");
+                        SendMessage(cmd.User, null, secondPlayer.Name + " is in the arena and cannot be teleported to!");
                         return;
                     }
 
@@ -149,6 +164,13 @@ namespace Rustitute
                 }
                 else if (cmd.quotedArgs.Count() == 1)
                 {
+                    int lastAttacked = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastAttacked"));
+                    if (lastAttacked <= 15)
+                    {
+                        SendMessage(cmd.User, null, "You cannot teleport while under attack! Try again in " + (15 - lastAttacked) + " seconds.");
+                        return;
+                    }
+
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
@@ -156,17 +178,104 @@ namespace Rustitute
                         return;
                     }
 
+                    if (otherPlayer.SteamID == cmd.User.SteamID)
+                    {
+                        SendMessage(cmd.User, null, "You cannot teleport to yourself!");
+                        return;
+                    }
+
                     if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, otherPlayer.Name + "is in the arena and cannot be teleported!");
+                        SendMessage(cmd.User, null, otherPlayer.Name + "is in the arena and cannot be teleported to!");
+                        return;
+                    }
+
+                    int teleportTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastTeleport"));
+
+                    if (teleportTime <= 180)
+                    {
+                        SendMessage(cmd.User, null, "You must wait 3 minutes between teleports! Try again in " + (180 - teleportTime) + " seconds.");
                         return;
                     }
 
                     if (otherPlayer != null)
                     {
-                        cmd.User.Teleport(otherPlayer.Location);
-                        SendMessage(cmd.User, null, "You have been teleported to " + otherPlayer.Name);
+                        if (GetSettingBool("user_" + otherPlayer.SteamID, "tpw_" + cmd.User.SteamID))
+                        {
+                            SetSetting("user_" + cmd.User.SteamID, "lastTeleport", Epoch().ToString());
+                            cmd.User.Teleport(otherPlayer.Location);
+                            SendMessage(cmd.User, null, "You have been teleported to " + otherPlayer.Name);
+                        }
+                        else
+                        {
+                            int otherTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + otherPlayer.SteamID, "tpFromTime"));
+
+                            if ((GetSetting("user_" + otherPlayer.SteamID, "tpFrom").Length > 1) && (otherTime <= 30))
+                            {
+                                SendMessage(cmd.User, null, "That player already has a pending teleport request. Try again in 30 seconds.");
+                            }
+
+                            SetSetting("user_" + otherPlayer.SteamID, "tpFrom", cmd.User.SteamID);
+                            SetSetting("user_" + otherPlayer.SteamID, "tpFromTime", Epoch().ToString());
+
+                            SendMessage(cmd.User, null, "Teleport request sent to " + otherPlayer.Name);
+                            SendMessage(otherPlayer, null, "Teleport request from " + cmd.User.Name + ". Type /tpa to accept the request within 30 seconds.");
+                        }
                     }
+                }
+            }
+            else if (cmd.cmd == "tpaccept" || cmd.cmd == "tpa")
+            {
+                try
+                {
+                    int tpTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "tpFromTime"));
+                    ulong tpFrom = Convert.ToUInt64(GetSetting("user_" + cmd.User.SteamID, "tpFrom"));
+
+                    if (tpFrom > 0 && tpTime <= 30)
+                    {
+                        var fromPlayer = Server.FindPlayer(tpFrom);
+                        if (fromPlayer.Offline)
+                        {
+                            SendMessage(cmd.User, null, "The user requesting the teleport is not online.");
+                            return;
+                        }
+
+                        SetSetting("user_" + fromPlayer.SteamID, "lastTeleport", Epoch().ToString());
+
+                        SetSetting("user_" + cmd.User.SteamID, "tpFrom", "0");
+                        SetSetting("user_" + cmd.User.SteamID, "tpFromTime", "0");
+
+                        fromPlayer.Teleport(cmd.User.Location);
+                        SendMessage(fromPlayer, null, "You have been teleported to " + cmd.User.Name);
+                    }
+                    else
+                    {
+                        SendMessage(cmd.User, null, "You have no teleport request.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            }
+            else if (cmd.cmd == "tpwhitelist" || cmd.cmd == "tpw")
+            {
+                Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
+                if (otherPlayer == null)
+                {
+                    SendMessage(cmd.User, null, "Player not found!");
+                    return;
+                }
+
+                if (GetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID))
+                {
+                    SetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID, false);
+                    SendMessage(cmd.User, null, otherPlayer.Name + " removed from your teleport whitelist!");
+                }
+                else
+                {
+                    SetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID, true);
+                    SendMessage(cmd.User, null, otherPlayer.Name + " added to your teleport whitelist!");
                 }
             }
             else if (cmd.cmd == "tparena" && cmd.User.Owner)
@@ -377,6 +486,19 @@ namespace Rustitute
                 if (cmd.quotedArgs.Count() == 2 && cmd.quotedArgs[0].Length > 0 && cmd.quotedArgs[1].Length > 0)
                 {
                     SendMessage(cmd.User, null, GetSetting(cmd.quotedArgs[0], cmd.quotedArgs[1]));
+                }
+            }
+            else if (cmd.cmd == "disappear" && cmd.User.Owner)
+            {
+                if (GetSettingBool("user_" + cmd.User.SteamID, "disappear"))
+                {
+                    SetSettingBool("user_" + cmd.User.SteamID, "disappear", false);
+                    SendMessage(cmd.User, null, "Disappear mode disabled!");
+                }
+                else
+                {
+                    SetSettingBool("user_" + cmd.User.SteamID, "disappear", true);
+                    SendMessage(cmd.User, null, "Disappear mode enabled!");
                 }
             }
             else if (cmd.cmd == "ko" && cmd.User.Owner)
@@ -732,9 +854,29 @@ namespace Rustitute
                     player.basePlayer.SendEffect(cmd.quotedArgs[1]);
                 }
             }
+            else if (cmd.cmd == "prefabs" && cmd.User.Owner)
+            {
+                try
+                {
+                    var prefabs = World.GetPrefabNames();
+
+                    using (FileStream fs = new FileStream("prefabs.txt", FileMode.Create, FileAccess.Write))
+                    using (StreamWriter sw = new StreamWriter(fs))
+                    {
+                        foreach (var prefab in prefabs)
+                        {
+                            sw.WriteLine(prefab);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log(ex.Message);
+                }
+            }
             else if (cmd.cmd == "test" && cmd.User.Owner)
             {
-
+                
             }
         }
     }

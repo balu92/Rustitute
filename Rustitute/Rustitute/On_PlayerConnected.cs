@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Pluton;
 
 namespace Rustitute
@@ -13,7 +10,12 @@ namespace Rustitute
             SetSetting("user_" + player.SteamID, "SteamID", player.SteamID);
             SetSetting("user_" + player.SteamID, "LastJoined", player.SteamID);
             SetSetting("user_" + player.SteamID, "LastName", player.Name);
-            SetSettingBool("user_" + player.SteamID, "inArena", false);
+
+            if (GetSettingBool("user_" + player.SteamID, "inArena"))
+            {
+                SetSettingBool("user_" + player.SteamID, "inArena", false);
+                player.Kill();
+            }
 
             if (GetSettingBool("user_" + player.SteamID, "god"))
                 SetSettingBool("user_" + player.SteamID, "god", false);

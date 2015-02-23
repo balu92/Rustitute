@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Pluton;
 using Pluton.Events;
@@ -91,7 +90,9 @@ namespace Rustitute
                     possiblePants.Add("burlap_trousers");
                     //possiblePants.Add("hazmat_pants");
                     possiblePants.Add("urban_pants");
-                    possiblePants.Add("none");
+
+                    // Always have at least 1 item of clothing so no 'none' on pants.
+                    //possiblePants.Add("none");
 
                     List<string> possibleBoots = new List<string>();
                     possibleBoots.Add("burlap_shoes");
@@ -104,6 +105,9 @@ namespace Rustitute
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_gloves", possibleGloves.PickRandom());
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_pants", possiblePants.PickRandom());
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_shoes", possibleBoots.PickRandom());
+
+
+
                     SetSettingBool("user_" + cmd.User.SteamID, "arenaClothes", true);
                 }
 
@@ -118,6 +122,8 @@ namespace Rustitute
 
         private void LogArena(CommandEvent cmd)
         {
+            SavingArena = true;
+
             SendMessageToAdmins("Logging arena... The server will be lagged out for a few seconds!");
 
             Dictionary<string, int> list = new Dictionary<string, int>();
@@ -141,7 +147,7 @@ namespace Rustitute
 
             for (float xx = -cubed; xx <= cubed; xx += 3f)
             {
-                SendMessageToAdmins(xx.ToString());
+                //SendMessageToAdmins(xx.ToString());
 
                 for (float zz = -cubed; zz <= cubed; zz += 3f)
                 {
@@ -178,18 +184,18 @@ namespace Rustitute
                                     JSON.Object arena = ArenaPart(collider);
                                     if (arena.Any())
                                     {
-                                        string uid = md5(arena.ToString());
+                                        string unique = Unique(arena["prefabName"].Str, collider.transform.position, collider.transform.rotation);
 
-                                        if (!iniArena.ContainsSetting("Arena_1_Parts", uid))
+                                        if (!iniArena.ContainsSetting("Arena_1_Parts", unique))
                                         {
-                                            iniArena.AddSetting("Arena_1_Parts", uid, arena.ToString());
+                                            iniArena.AddSetting("Arena_1_Parts", unique, arena.ToString());
                                             if (list.ContainsKey(arena["name"].Str))
                                                 list[arena["name"].Str]++;
                                             else
                                                 list.Add(arena["name"].Str, 1);
                                         }
                                         else
-                                            iniArena.SetSetting("Arena_1_Parts", uid, arena.ToString());
+                                            iniArena.SetSetting("Arena_1_Parts", unique, arena.ToString());
                                     }
                                 }
                             }
@@ -199,6 +205,36 @@ namespace Rustitute
                             }
                         }
                     }
+                }
+            }
+
+            foreach (var item in disappearList)
+            {
+                JSON.Object arena = null;
+
+                try
+                {
+                    arena = ArenaPart(null, item);
+                }
+                catch (Exception ex)
+                {
+                    SendMessageToAdmins("logarena disappearlist exception: " + ex.ToString());
+                }
+
+                if (arena.Any())
+                {
+                    string unique = Unique(item.Prefab, item.Location, item.Rotation);
+
+                    if (!iniArena.ContainsSetting("Arena_1_Parts", unique))
+                    {
+                        iniArena.AddSetting("Arena_1_Parts", unique, arena.ToString());
+                        if (list.ContainsKey(arena["name"].Str))
+                            list[arena["name"].Str]++;
+                        else
+                            list.Add(arena["name"].Str, 1);
+                    }
+                    else
+                        iniArena.SetSetting("Arena_1_Parts", unique, arena.ToString());
                 }
             }
 
@@ -213,6 +249,13 @@ namespace Rustitute
             iniArena.SaveSettings(Plugin.ValidateRelativePath("arenas/" + "Arena-" + DateTime.Now.Ticks + ".ini"));
 
             SendMessageToAdmins("Arena Logged!");
+
+            SavingArena = false;
+        }
+
+        private string Unique(string prefab, Vector3 location, Quaternion rotation)
+        {
+            return md5(prefab + "--" + location + "--" + rotation);
         }
 
         private void SpawnArena(CommandEvent cmd)
@@ -256,6 +299,23 @@ namespace Rustitute
                             block.Heal(100000f);
                         }
                         catch (Exception ex) { }
+
+                        if (part["disappearItem"].Boolean)
+                        {
+                            string unique = Unique(part["prefabName"].Str, block.transform.position, block.transform.rotation);
+
+                            DisappearItem state = new DisappearItem();
+
+                            state.Block = block;
+                            state.Prefab = state.Block.LookupPrefabName();
+                            state.Location = state.Block.transform.position;
+                            state.Rotation = state.Block.transform.rotation;
+                            state.Grade = state.Block.grade;
+
+                            disappearList.Add(state);
+                            disappearUnique.Add(unique);
+                            block.Kill(BaseNetworkable.DestroyMode.None);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -298,6 +358,8 @@ namespace Rustitute
         {
             // :(
             //lanternList.Clear();
+            disappearList.Clear();
+            disappearUnique.Clear();
 
             float x = float.Parse(GetSetting("Arena", "locationX"));
             float y = float.Parse(GetSetting("Arena", "locationY"));
@@ -309,7 +371,7 @@ namespace Rustitute
 
             for (float xx = -100; xx <= 100; xx += 3f)
             {
-                SendMessageToAdmins(xx.ToString());
+                //SendMessageToAdmins(xx.ToString());
 
                 for (float zz = -100; zz <= 100; zz += 3f)
                 {
@@ -568,14 +630,23 @@ namespace Rustitute
             return (Vector2.Distance(arenaLocation, new Vector2(location.x, location.z)) <= arenaBuildRestrictionSpace);
         }
 
-        private JSON.Object ArenaPart(Collider collider)
+        private JSON.Object ArenaPart(Collider collider = null, DisappearItem  disappearItem = null)
         {
             JSON.Object arena = new JSON.Object();
 
             Vector3 location = new Vector3();
             Quaternion rotation = new Quaternion();
 
-            if (collider.GetComponentInParent<BuildingBlock>())
+            if (collider == null)
+            {
+                arena.Add("type", "BuildingBlock");
+                arena.Add("grade", disappearItem.Grade);
+                arena.Add("name", disappearItem.Prefab);
+                arena.Add("prefabName", disappearItem.Prefab);
+                location = disappearItem.Location;
+                rotation = disappearItem.Rotation;
+            }
+            else if (collider.GetComponentInParent<BuildingBlock>())
             {
                 BuildingBlock item = collider.GetComponentInParent<BuildingBlock>();
                 arena.Add("type", "BuildingBlock");
@@ -632,6 +703,15 @@ namespace Rustitute
             arena.Add("rotationY", rotation.y.ToString("F99").TrimEnd('0'));
             arena.Add("rotationZ", rotation.z.ToString("F99").TrimEnd('0'));
             arena.Add("rotationW", rotation.w.ToString("F99").TrimEnd('0'));
+
+            string unique;
+            if(collider == null)
+                unique = Unique(arena["prefabName"].Str, disappearItem.Location, disappearItem.Rotation);
+            else
+                unique = Unique(arena["prefabName"].Str, collider.transform.position, collider.transform.rotation);
+
+            if (disappearUnique.Contains(unique))
+                arena.Add("disappearItem", true);
 
             return arena;
         }

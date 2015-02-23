@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 namespace Rustitute
 {
@@ -20,6 +20,19 @@ namespace Rustitute
 
             LoadSettings();
 
+            try
+            {
+                if (GlobalData.ContainsKey("Rustitute_disappearList"))
+                {
+                    disappearList = (List<DisappearItem>) GlobalData["Rustitute_disappearList"];
+                    disappearUnique = (List<string>) GlobalData["Rustitute_disappearUnique"];
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex.ToString());
+            }
+
             // :(
             //lanternList = GetArenaLanterns();
 
@@ -30,6 +43,14 @@ namespace Rustitute
             lanternTimer.Interval = 1000 * 5;
             lanternTimer.Elapsed += (sender, e) => { CheckLanterns(); };
             lanternTimer.Enabled = true;
+
+            disappearTimer.Interval = 1000 * 3;
+            disappearTimer.Elapsed += (sender, e) => { DisappearTimer(); };
+            disappearTimer.Enabled = true;
+
+            campingTimer.Interval = 1000 * 15;
+            campingTimer.Elapsed += (sender, e) => { CampingTimer(); };
+            campingTimer.Enabled = true;
         }
     }
 }

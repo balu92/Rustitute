@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Pluton;
 using Pluton.Events;
 using UnityEngine;
@@ -14,16 +12,21 @@ namespace Rustitute
         {
             try
             {
-                int copySize = GetSettingInt("user_" + he.Attacker.ToPlayer().SteamID, "copy");
-                if (copySize != 0)
+                if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
                 {
-                    if (he.Victim.Prefab.StartsWith("build/"))
+                    int copySize = GetSettingInt("user_" + he.Attacker.ToPlayer().SteamID, "copy");
+                    if (copySize != 0)
                     {
-                        var part = he.Victim.ToBuildingPart();
-                        Vector3 pos = new Vector3(part.Location.x, part.Location.y + copySize, part.Location.z);
-                        BaseEntity ent = GameManager.server.CreateEntity(part.Prefab, pos, part.buildingBlock.transform.rotation);
-                        ent.SpawnAsMapEntity();
-                        ent.GetComponent<BuildingBlock>().Heal(100000f);
+                        if (he.Victim.Prefab.StartsWith("build/"))
+                        {
+                            var part = he.Victim.ToBuildingPart();
+                            Vector3 pos = new Vector3(part.Location.x, part.Location.y + copySize, part.Location.z);
+                            BaseEntity ent = GameManager.server.CreateEntity(part.Prefab, pos, part.buildingBlock.transform.rotation);
+                            ent.SpawnAsMapEntity();
+                            var block = ent.GetComponent<BuildingBlock>();
+                            block.grade = part.Grade;
+                            block.Heal(100000f);
+                        }
                     }
                 }
             }
@@ -50,7 +53,40 @@ namespace Rustitute
                 }
                 catch (Exception ex) { }
 
-                if (arenaPart && attacker != null && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "koall"))
+                if (arenaPart && attacker != null && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "disappear"))
+                {
+                    if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
+                    {
+                        DisappearItem state = new DisappearItem();
+
+                        state.Block = he.Victim.ToBuildingPart().buildingBlock;
+                        state.Prefab = state.Block.LookupPrefabName();
+                        state.Location = state.Block.transform.position;
+                        state.Rotation = state.Block.transform.rotation;
+                        state.Grade = state.Block.grade;
+
+                        var unique = Unique(state.Prefab, state.Location, state.Rotation);
+
+                        if (disappearUnique.Contains(unique))
+                        {
+                            foreach (var item in disappearList)
+                            {
+                                if (item.Prefab == state.Prefab && item.Location == state.Location && item.Rotation == state.Rotation)
+                                {
+                                    disappearList.Remove(item);
+                                    disappearUnique.Remove(unique);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            disappearList.Add(state);
+                            disappearUnique.Add(unique);
+                            he.Victim.ToBuildingPart().Health = 0;
+                        }
+                    }
+                }
+                else if (arenaPart && attacker != null && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "koall"))
                 {
                     if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
                     {

@@ -67,8 +67,11 @@
     <Compile Include="On_PluginInit.cs" />
     <Compile Include="On_PluginUnload.cs" />
     <Compile Include="On_Respawn.cs" />
+    <Compile Include="On_ServerInit.cs" />
+    <Compile Include="On_ServerShutdown.cs" />
     <Compile Include="Rustitute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

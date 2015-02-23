@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Pluton;
 using Timer = System.Timers.Timer;
-using Server = Pluton.Server;
 
 namespace Rustitute
 {
@@ -12,8 +11,14 @@ namespace Rustitute
         private float arenaBuildRestrictionSpace = 300f;
         private Timer workTimer = new Timer();
         private Timer lanternTimer = new Timer();
+        private Timer disappearTimer = new Timer();
+        private Timer campingTimer = new Timer();
         // :(
         //private static List<DeployedItem> lanternList = new List<DeployedItem>();
+        private static List<DisappearItem> disappearList = new List<DisappearItem>();
+        private static List<string> disappearUnique = new List<string>();
+        private bool disappearShowing = true;
+        private bool SavingArena = false;
         private IniParser ini;
         private IniParser iniArena;
 
@@ -23,47 +28,14 @@ namespace Rustitute
             public int count { get; set; }
         }
 
-        private class BuildingPartTimer
-        {
-            public BuildingPart part{ get; set; }
-            public System.Threading.Timer Timer { get; set; }
-        }
-
-        private void Work()
-        {
-            for (var i = 0; i < Server.ActivePlayers.Count; i++)
-            {
-                Player player = Server.ActivePlayers[i];
-                bool hasGod = GetSettingBool("user_" + player.SteamID, "god");
-                bool hasKO = GetSettingBool("user_" + player.SteamID, "ko");
-                bool hasKOAll = GetSettingBool("user_" + player.SteamID, "koall");
-                bool hasArenaBuild = GetSettingBool("user_" + player.SteamID, "arenabuild");
-                bool hasInstaMax = GetSettingBool("user_" + player.SteamID, "instamax");
-                bool hasCopy = GetSettingInt("user_" + player.SteamID, "copy") != 0;
-
-                if (hasGod)
-                    SendMessage(player, null, "[Reminder] God mode is active!");
-                if (hasKO)
-                    SendMessage(player, null, "[Reminder] KO mode is active!");
-                if (hasKOAll)
-                    SendMessage(player, null, "[Reminder] KO All mode is active!");
-                if (hasArenaBuild)
-                    SendMessage(player, null, "[Reminder] Arena build mode is active!");
-                if (hasInstaMax)
-                    SendMessage(player, null, "[Reminder] Insta Max mode is active!");
-                if (hasCopy)
-                    SendMessage(player, null, "[Reminder] Copy mode is active!");
-            }
-
-            ini.Save();
-        }
-
         private void Help(Player player)
         {
             SendMessage(player, null, "Available Commands:");
 
             SendMessage(player, null, "  /starter - Get a basic kit to get you started.");
-            SendMessage(player, null, "  /tp <user> - Teleport to that user.");
+            SendMessage(player, null, "  /tp <user> - Send a teleport request to that user.");
+            SendMessage(player, null, "  /tpa - Accept a teleport request.");
+            SendMessage(player, null, "  /tpw <user> - Whitelist a user so they can instantly teleport to you.");
             SendMessage(player, null, "  /tpsethome - Set your home position.");
             SendMessage(player, null, "  /tphome - Teleport home.");
             SendMessage(player, null, "  /players - Get a list of online players.");
