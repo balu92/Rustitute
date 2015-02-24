@@ -258,7 +258,7 @@ namespace Rustitute
             return md5(prefab + "--" + location + "--" + rotation);
         }
 
-        private void SpawnArena(CommandEvent cmd)
+        private void SpawnArena(CommandEvent cmd = null)
         {
             var arenaParts = iniArena.EnumSection("Arena_1_Parts");
 
@@ -279,7 +279,7 @@ namespace Rustitute
 
                         var block = (BuildingBlock)ent;
 
-                        if (cmd.quotedArgs.Any())
+                        if (cmd != null && cmd.quotedArgs.Any())
                         {
                             int newGrade = Convert.ToInt32(cmd.quotedArgs[0]);
                             int grade = ((int) block.blockDefinition.grades.Length) - 1;
@@ -312,6 +312,7 @@ namespace Rustitute
                             state.Rotation = state.Block.transform.rotation;
                             state.Grade = state.Block.grade;
 
+                            disappearBlocks.Add(block.gameObject);
                             disappearList.Add(state);
                             disappearUnique.Add(unique);
                             block.Kill(BaseNetworkable.DestroyMode.None);
@@ -351,13 +352,15 @@ namespace Rustitute
                 */
             }
 
-            SendMessage(cmd.User, null, "Arena Spawned!");
+            if (cmd != null)
+                SendMessage(cmd.User, null, "Arena Spawned!");
         }
 
-        private void DestroyArena(CommandEvent cmd)
+        private void DestroyArena(CommandEvent cmd = null)
         {
             // :(
             //lanternList.Clear();
+            disappearBlocks.Clear();
             disappearList.Clear();
             disappearUnique.Clear();
 
@@ -408,7 +411,8 @@ namespace Rustitute
                 }
             }
 
-            SendMessage(cmd.User, null, "Arena Destroyed!");
+            if(cmd != null)
+                SendMessage(cmd.User, null, "Arena Destroyed!");
         }
 
         private void AddSpawn(CommandEvent cmd)

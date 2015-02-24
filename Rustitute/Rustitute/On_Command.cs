@@ -51,8 +51,26 @@ namespace Rustitute
                 String playersWithInfo = "";
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
                 {
-                    var health = Convert.ToInt32(Server.ActivePlayers[i].Health);
-                    var distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location));
+                    int health = 0;
+                    int distance = 0;
+
+                    try
+                    {
+                        health = Convert.ToInt32(Server.ActivePlayers[i].Health);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log("H: " + ex.ToString());
+                    }
+
+                    try
+                    {
+                        distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, Server.ActivePlayers[i].Location));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log("D: " + ex.ToString());
+                    }
 
                     playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + health + ",D:" + distance + "). ";
                 }
@@ -343,6 +361,41 @@ namespace Rustitute
                 Heal(cmd.User);
                 SendMessage(cmd.User, null, "You have been healed!");
             }
+            else if (cmd.cmd == "owner" && cmd.User.Owner)
+            {
+                Collider[] castHits = Physics.OverlapSphere(cmd.User.Location, 50f, 1 << 8);
+
+                foreach (Collider collider in castHits)
+                {
+                    var sleepingBag = collider.GetComponent<SleepingBag>();
+                    if (sleepingBag)
+                    {
+                        int distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, collider.transform.position));
+                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away owned by " + sleepingBag.deployerUserName);
+                    }
+                }
+            }
+            else if (cmd.cmd == "give" && cmd.User.Owner)
+            {
+                Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
+                var item = cmd.quotedArgs[1];
+                var qty = 1;
+                if (cmd.quotedArgs.Count() == 3)
+                    qty = Convert.ToInt32(cmd.quotedArgs[2]);
+
+                var itemId = InvItem.GetItemID(item);
+                if (itemId <= 0)
+                {
+                    SendMessage(cmd.User, null, "That item could not be found");
+                    return;
+                }
+
+                otherPlayer.Inventory.Add(itemId, qty);
+
+                if (cmd.User.SteamID != otherPlayer.SteamID)
+                    SendMessage(cmd.User, null, qty + "x " + item + " has been given to " + otherPlayer.Name);
+                SendMessage(otherPlayer, null, qty + "x " + item + " has been given to you!");
+            }
             else if (cmd.cmd == "jump" && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
@@ -366,6 +419,17 @@ namespace Rustitute
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                     return;
+
+                int waitTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastStarter"));
+                int timeLimitMinutes = 30; // 30 Minutes
+
+                if (waitTime <= (timeLimitMinutes * 60))
+                {
+                    SendMessage(cmd.User, null, "You must wait " + Mathf.Ceil(timeLimitMinutes  - (waitTime / 60)) + " minutes before using this command again.");
+                    return;
+                }
+
+                SetSetting("user_" + cmd.User.SteamID, "lastStarter", Epoch().ToString());
 
                 var belt = cmd.User.Inventory._inv.containerBelt;
                 var wear = cmd.User.Inventory._inv.containerWear;
@@ -876,7 +940,7 @@ namespace Rustitute
             }
             else if (cmd.cmd == "test" && cmd.User.Owner)
             {
-                
+
             }
         }
     }

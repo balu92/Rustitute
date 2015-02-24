@@ -1,4 +1,5 @@
-﻿using Pluton.Events;
+﻿using System;
+using Pluton.Events;
 
 namespace Rustitute
 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace Rustitute
@@ -22,10 +23,29 @@ namespace Rustitute
 
             try
             {
-                if (GlobalData.ContainsKey("Rustitute_disappearList"))
+                if (GlobalData.ContainsKey("Rustitute_disappearBlocks"))
                 {
-                    disappearList = (List<DisappearItem>) GlobalData["Rustitute_disappearList"];
-                    disappearUnique = (List<string>) GlobalData["Rustitute_disappearUnique"];
+                    disappearBlocks = (List<GameObject>) GlobalData["Rustitute_disappearBlocks"];
+
+                    foreach (var gameObject in disappearBlocks)
+                    {
+                        var block = gameObject.GetComponent<BuildingBlock>();
+
+                        string unique = Unique(block.LookupPrefabName(), block.transform.position, block.transform.rotation);
+
+                        DisappearItem state = new DisappearItem();
+
+                        state.Block = block;
+                        state.Prefab = state.Block.LookupPrefabName();
+                        state.Location = state.Block.transform.position;
+                        state.Rotation = state.Block.transform.rotation;
+                        state.Grade = state.Block.grade;
+
+                        disappearList.Add(state);
+                        disappearUnique.Add(unique);
+                    }
+                    //disappearList = (List<DisappearItem>) GlobalData["Rustitute_disappearList"];
+                    //disappearUnique = (List<string>) GlobalData["Rustitute_disappearUnique"];
                 }
             }
             catch (Exception ex)

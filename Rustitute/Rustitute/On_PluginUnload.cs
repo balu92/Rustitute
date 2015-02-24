@@ -7,15 +7,14 @@
             workTimer.Close();
             lanternTimer.Close();
             campingTimer.Close();
-
-            if (disappearTimer != null)
-                disappearTimer.Close();
+            disappearTimer.Close();
 
             ini.Save();
             iniArena.Save();
 
-            GlobalData["Rustitute_disappearList"] = disappearList;
-            GlobalData["Rustitute_disappearUnique"] = disappearUnique;
+            //GlobalData["Rustitute_disappearList"] = disappearList;
+            //GlobalData["Rustitute_disappearUnique"] = disappearUnique;
+            GlobalData["Rustitute_disappearBlocks"] = disappearBlocks;
         }
     }
 }

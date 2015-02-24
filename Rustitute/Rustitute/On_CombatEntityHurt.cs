@@ -73,6 +73,7 @@ namespace Rustitute
                             {
                                 if (item.Prefab == state.Prefab && item.Location == state.Location && item.Rotation == state.Rotation)
                                 {
+                                    disappearBlocks.Remove(item.Block.gameObject);
                                     disappearList.Remove(item);
                                     disappearUnique.Remove(unique);
                                 }
@@ -80,6 +81,7 @@ namespace Rustitute
                         }
                         else
                         {
+                            disappearBlocks.Add(state.Block.gameObject);
                             disappearList.Add(state);
                             disappearUnique.Add(unique);
                             he.Victim.ToBuildingPart().Health = 0;

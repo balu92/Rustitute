@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Pluton;
+using UnityEngine;
 using Timer = System.Timers.Timer;
 
 namespace Rustitute
@@ -15,6 +16,7 @@ namespace Rustitute
         private Timer campingTimer = new Timer();
         // :(
         //private static List<DeployedItem> lanternList = new List<DeployedItem>();
+        private static List<GameObject> disappearBlocks = new List<GameObject>(); // used across reloads
         private static List<DisappearItem> disappearList = new List<DisappearItem>();
         private static List<string> disappearUnique = new List<string>();
         private bool disappearShowing = true;
@@ -59,6 +61,8 @@ namespace Rustitute
                 SendMessage(player, null, "  /tpx - Teleport to the position at your crosshair.");
                 SendMessage(player, null, "  /tparena - Teleport inside the arena.");
                 SendMessage(player, null, "  /heal - Completely heal yourself.");
+                SendMessage(player, null, "  /owner - List the owners of all sleeping bags within 50m.");
+                SendMessage(player, null, "  /give <user> <item> <qty> - Give an item to a user. Qty defaults to 1.");
                 //SendMessage(player, null, "  /airdrop <optionalUser> - Create an airdrop optionally above a given user.");
                 //SendMessage(player, null, "  /animal <user> - Spawn an animal at the users position.");
                 SendMessage(player, null, "  /jump <distanceUp> - Teleport by the given distance.");
