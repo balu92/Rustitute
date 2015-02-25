@@ -57,8 +57,24 @@ namespace Rustitute
                 SetSetting("user_" + cmd.User.SteamID, "locationBeforeArenaY", cmd.User.Location.y.ToString());
                 SetSetting("user_" + cmd.User.SteamID, "locationBeforeArenaZ", cmd.User.Location.z.ToString());
 
+                SetSetting("user_" + cmd.User.SteamID, "campingCounter", "0");
+
+                var belt = InvItem.ContainerPreference.Belt;
+                var main = InvItem.ContainerPreference.Main;
+
+                cmd.User.Inventory._inv.Strip();
+
                 var loadout = Server.LoadOuts["arena"];
-                loadout.ToInv(cmd.User.Inventory);
+
+                for (int i = 0; i < loadout.items.Count; i++)
+                {
+                    if (i <= 5)
+                        cmd.User.Inventory._inv.GiveItem(loadout.items[i].invItem._item, cmd.User.Inventory.InnerBelt);
+                    else
+                        cmd.User.Inventory._inv.GiveItem(loadout.items[i].invItem._item, cmd.User.Inventory.InnerMain);
+                }
+
+                //loadout.ToInv(cmd.User.Inventory, false);
 
                 if (GetSettingBool("user_" + cmd.User.SteamID, "arenaClothes") == false)
                 {

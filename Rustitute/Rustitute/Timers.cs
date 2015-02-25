@@ -121,7 +121,9 @@ namespace Rustitute
 
                         SetSettingBool("user_" + Server.ActivePlayers[i].SteamID, "inArena", false);
                         SetSettingBool("user_" + Server.ActivePlayers[i].SteamID, "godArena", false);
+                        SetSetting("user_" + Server.ActivePlayers[i].SteamID, "campingCounter", "0");
                         Server.ActivePlayers[i].Kill();
+                        return;
                     }
                     else if (campingCounter >= 2 && (campingCounter % 2) == 0)
                     {
