@@ -4,12 +4,42 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Pluton;
+using Pluton.Events;
 using UnityEngine;
 
 namespace Rustitute
 {
     partial class Rustitute
     {
+        private bool TimeRestrict(Player player, string action, int seconds, string message)
+        {
+            int lastTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + player.SteamID, "lastTime_" + action));
+            if (lastTime <= seconds)
+            {
+                string nextAvailableWord = " seconds";
+                int nextAvailable = seconds - lastTime;
+                if (nextAvailable >= 120)
+                {
+                    nextAvailable = Convert.ToInt32(Mathf.Ceil(nextAvailable / 60));
+                    nextAvailableWord = " minutes";
+                }
+
+                SendMessage(player, null, message + " Try again in " + nextAvailable + nextAvailableWord);
+                return true;
+            }
+            return false;
+        }
+
+        private void TimeRestrictReset(Player player, string action)
+        {
+            SetSetting("user_" + player.SteamID, "lastTime_" + action, "0");
+        }
+
+        private void TimeRestrictSet(Player player, string action)
+        {
+            SetSetting("user_" + player.SteamID, "lastTime_" + action, Epoch().ToString());
+        }
+
         private void SendMessage(Player to, Player from, string message)
         {
             string fromName = botName;

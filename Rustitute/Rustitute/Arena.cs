@@ -105,9 +105,7 @@ namespace Rustitute
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_gloves", possibleGloves.PickRandom());
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_pants", possiblePants.PickRandom());
                     SetSetting("user_" + cmd.User.SteamID, "arenaClothes_shoes", possibleBoots.PickRandom());
-
-
-
+                    
                     SetSettingBool("user_" + cmd.User.SteamID, "arenaClothes", true);
                 }
 
@@ -466,36 +464,7 @@ namespace Rustitute
             }
 
             if (arenaState.Counter == 1)
-            {
                 SetSettingBool("user_" + player.SteamID, "godArena", true);
-
-                /*
-                player.Inventory._inv.Strip();
-
-                player.Inventory.Add(new InvItem("smg_thompson", 1), belt);
-                player.Inventory.Add(new InvItem("rifle_ak", 1), belt);
-                player.Inventory.Add(new InvItem("rifle_bolt", 1), belt);
-                player.Inventory.Add(new InvItem("shotgun_waterpipe", 1), belt);
-                player.Inventory.Add(new InvItem("bow_hunting", 1), belt);
-                player.Inventory.Add(new InvItem("hatchet", 1), belt);
-
-                player.Inventory.Add(new InvItem("ammo_pistol", 10000), main);
-                player.Inventory.Add(new InvItem("ammo_rifle", 10000), main);
-                player.Inventory.Add(new InvItem("ammo_shotgun", 10000), main);
-                player.Inventory.Add(new InvItem("arrow_wooden", 10000), main);
-
-                player.Inventory.Add(new InvItem("pistol_revolver", 1), main);
-
-                player.Inventory.Add(new InvItem("largemedkit", 100), main);
-
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                player.Inventory.Add(new InvItem("largemedkit", 1), main);
-                */
-            }
 
             if (arenaState.Counter <= 10)
             {
@@ -528,7 +497,6 @@ namespace Rustitute
                 if (arenaClothes_shoes != "none")
                     player.Inventory.Add(new InvItem(arenaClothes_shoes, 1), wear);
             }
-
         }
 
         private void item_OnDirty(Item item)

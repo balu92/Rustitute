@@ -93,12 +93,8 @@ namespace Rustitute
             }
             else if (cmd.cmd == "tphome")
             {
-                int lastAttacked = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastAttacked"));
-                if (lastAttacked <= 15)
-                {
-                    SendMessage(cmd.User, null, "You cannot teleport while under attack!");
+                if (TimeRestrict(cmd.User, "attacked", 15, "You cannot teleport while under attack!"))
                     return;
-                }
 
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
@@ -182,12 +178,8 @@ namespace Rustitute
                 }
                 else if (cmd.quotedArgs.Count() == 1)
                 {
-                    int lastAttacked = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastAttacked"));
-                    if (lastAttacked <= 15)
-                    {
-                        SendMessage(cmd.User, null, "You cannot teleport while under attack! Try again in " + (15 - lastAttacked) + " seconds.");
+                    if (TimeRestrict(cmd.User, "attacked", 15, "You cannot teleport while under attack!"))
                         return;
-                    }
 
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
@@ -208,19 +200,14 @@ namespace Rustitute
                         return;
                     }
 
-                    int teleportTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastTeleport"));
-
-                    if (teleportTime <= 180)
-                    {
-                        SendMessage(cmd.User, null, "You must wait 3 minutes between teleports! Try again in " + (180 - teleportTime) + " seconds.");
+                    if (TimeRestrict(cmd.User, cmd.cmd, 60*3, "You must wait 3 minutes between teleports!"))
                         return;
-                    }
 
                     if (otherPlayer != null)
                     {
                         if (GetSettingBool("user_" + otherPlayer.SteamID, "tpw_" + cmd.User.SteamID))
                         {
-                            SetSetting("user_" + cmd.User.SteamID, "lastTeleport", Epoch().ToString());
+                            TimeRestrictSet(cmd.User, cmd.cmd);
                             cmd.User.Teleport(otherPlayer.Location);
                             SendMessage(cmd.User, null, "You have been teleported to " + otherPlayer.Name);
                         }
@@ -231,6 +218,7 @@ namespace Rustitute
                             if ((GetSetting("user_" + otherPlayer.SteamID, "tpFrom").Length > 1) && (otherTime <= 30))
                             {
                                 SendMessage(cmd.User, null, "That player already has a pending teleport request. Try again in 30 seconds.");
+                                return;
                             }
 
                             SetSetting("user_" + otherPlayer.SteamID, "tpFrom", cmd.User.SteamID);
@@ -258,7 +246,7 @@ namespace Rustitute
                             return;
                         }
 
-                        SetSetting("user_" + fromPlayer.SteamID, "lastTeleport", Epoch().ToString());
+                        TimeRestrictSet(fromPlayer, "tp");
 
                         SetSetting("user_" + cmd.User.SteamID, "tpFrom", "0");
                         SetSetting("user_" + cmd.User.SteamID, "tpFromTime", "0");
@@ -420,16 +408,10 @@ namespace Rustitute
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                     return;
 
-                int waitTime = Epoch() - Convert.ToInt32(GetSettingInt("user_" + cmd.User.SteamID, "lastStarter"));
-                int timeLimitMinutes = 30; // 30 Minutes
-
-                if (waitTime <= (timeLimitMinutes * 60))
-                {
-                    SendMessage(cmd.User, null, "You must wait " + Mathf.Ceil(timeLimitMinutes  - (waitTime / 60)) + " minutes before using this command again.");
+                if (TimeRestrict(cmd.User, cmd.cmd, 60 * 30, "You must wait 30 minutes between starter kits!"))
                     return;
-                }
-
-                SetSetting("user_" + cmd.User.SteamID, "lastStarter", Epoch().ToString());
+                
+                TimeRestrictSet(cmd.User, cmd.cmd);
 
                 var belt = cmd.User.Inventory._inv.containerBelt;
                 var wear = cmd.User.Inventory._inv.containerWear;

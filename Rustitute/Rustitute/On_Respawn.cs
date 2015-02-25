@@ -7,6 +7,8 @@ namespace Rustitute
     {
         public void On_Respawn(RespawnEvent re)
         {
+            TimeRestrictReset(re.Player, "attacked");
+
             if (GetSettingBool("user_" + re.Player.SteamID, "god"))
             {
                 Heal(re.Player);

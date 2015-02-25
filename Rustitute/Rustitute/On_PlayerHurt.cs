@@ -119,7 +119,7 @@ namespace Rustitute
                             }
                         }
 
-                        SetSetting("user_" + de.Victim.SteamID, "lastAttacked", Epoch().ToString());
+                        TimeRestrictSet(de.Victim, "attacked");
 
                         if (attacker != null)
                         {

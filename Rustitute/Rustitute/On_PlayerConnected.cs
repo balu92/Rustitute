@@ -7,6 +7,8 @@ namespace Rustitute
     {
         public void On_PlayerConnected(Player player)
         {
+            TimeRestrictReset(player, "attacked");
+
             SetSetting("user_" + player.SteamID, "SteamID", player.SteamID);
             SetSetting("user_" + player.SteamID, "LastJoined", player.SteamID);
             SetSetting("user_" + player.SteamID, "LastName", player.Name);
