@@ -184,8 +184,7 @@ namespace Rustitute
                             try
                             {
                                 if ((collider.gameObject.GetComponentsInParent<BuildingBlock>().Any()) ||
-                                    // :(
-                                    //(collider.gameObject.GetComponentsInParent<DeployedItem>().Any()) ||
+                                    (collider.gameObject.GetComponentsInParent<Deployable>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<StorageContainer>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<FakePhysics>().Any()) ||
                                     (collider.gameObject.GetComponentsInParent<WorldItem_EnableDisable>().Any()) ||
@@ -337,15 +336,13 @@ namespace Rustitute
                         //Debug.Log("d1: " + ex.ToString());
                     }
                 }
-                // :(
-                /*
                 else if ((part["name"].Str == "items/lantern_deployed") || (part["name"].Str == "Lantern (world)"))
                 {
                     try
                     {
                         BaseEntity ent = GameManager.server.CreateEntity("items/lantern_deployed", pos, rot);
 
-                        var deployedItem = ent.GetComponent<DeployedItem>();
+                        var deployedItem = ent.GetComponent<Deployable>();
                         var newItem = ItemManager.CreateByName("lantern");
 
                         deployedItem.SendMessage("SetDeployedBy", cmd.User.basePlayer, UnityEngine.SendMessageOptions.DontRequireReceiver);
@@ -354,16 +351,13 @@ namespace Rustitute
                         ent.Spawn(true);
                         newItem.SetWorldEntity(ent);
 
-                        //newItem.OnDirty += item_OnDirty;
-
                         lanternList.Add(deployedItem);
                     }
                     catch (Exception ex)
                     {
-                        //Debug.Log("d2: " + ex.ToString());
+                        //Debug.Log("[spawnarena] " + ex.ToString());
                     }
                 }
-                */
             }
 
             if (cmd != null)
@@ -372,8 +366,7 @@ namespace Rustitute
 
         private void DestroyArena(CommandEvent cmd = null)
         {
-            // :(
-            //lanternList.Clear();
+            lanternList.Clear();
             disappearBlocks.Clear();
             disappearList.Clear();
             disappearUnique.Clear();
@@ -527,14 +520,20 @@ namespace Rustitute
             {
                 bool lightsOn = (World.Time >= 17.5 || World.Time <= 5.5f);
 
-                // :(
-                /*
                 foreach (var lantern in lanternList)
                 {
-                    lantern.item.SwitchOnOff(lightsOn, new BasePlayer());
-                    lantern.item.dirty = true;
+                    var baseOven = lantern.gameObject.GetComponent<BaseOven>();
+                    foreach (var item in baseOven.inventory.itemList)
+                    {
+                        item.amount = 1000;
+                    }
+                    baseOven.isLootable = false;
+
+                    var baseEntity = lantern.gameObject.GetComponent<BaseEntity>();
+                    var entityFlagToggle = lantern.gameObject.GetComponent<EntityFlag_Toggle>();
+                    baseEntity.SetFlag(BaseEntity.Flags.On, lightsOn);
+                    entityFlagToggle.DoUpdate(baseEntity);
                 }
-                */
             }
             catch (Exception ex)
             {
@@ -549,11 +548,9 @@ namespace Rustitute
             CreateArenaSpawnTimer(player.SteamID, 1000, 1);
         }
 
-        // :(
-        /*
-        private List<DeployedItem> GetArenaLanterns()
+        private List<Deployable> GetArenaLanterns()
         {
-            List<DeployedItem> lanterns = new List<DeployedItem>();
+            List<Deployable> lanterns = new List<Deployable>();
 
             float x = float.Parse(GetSetting("Arena", "locationX"));
             float y = float.Parse(GetSetting("Arena", "locationY"));
@@ -574,7 +571,7 @@ namespace Rustitute
                 {
                     if ((collider.name == "items/lantern_deployed") || (collider.name == "Lantern (world)"))
                     {
-                        lanterns.Add(collider.GetComponent<DeployedItem>());
+                        lanterns.Add(collider.GetComponent<Deployable>());
                     }
                 }
                 catch (Exception ex) { }
@@ -582,7 +579,6 @@ namespace Rustitute
 
             return lanterns;
         }
-        */
 
         private IDictionary<string, string> PlayersInArena()
         {
@@ -644,43 +640,14 @@ namespace Rustitute
                 location = item.transform.position;
                 rotation = item.transform.rotation;
             }
-            // :(
-            /*
-            else if (collider.gameObject.GetComponentsInParent<DeployedItem>().Any())
+            else if (collider.gameObject.GetComponentsInParent<Deployable>().Any())
             {
-                WorldItem item = collider.GetComponentInParent<WorldItem>();
-                arena.Add("type", "DeployedItem");
-                arena.Add("name", item.name);
-                arena.Add("prefabName", item.LookupPrefabName());
-                location = item.transform.position;
-                rotation = item.transform.rotation;
-            }
-            */
-            else if (collider.gameObject.GetComponentsInParent<FakePhysics>().Any())
-            {
-                WorldItem item = collider.GetComponentInParent<WorldItem>();
-                arena.Add("type", "FakePhysics");
-                arena.Add("name", item.name);
-                arena.Add("prefabName", item.LookupPrefabName());
-                location = item.transform.position;
-                rotation = item.transform.rotation;
-            }
-            else if (collider.gameObject.GetComponentsInParent<StorageContainer>().Any())
-            {
-                StorageContainer item = collider.GetComponentInParent<StorageContainer>();
-                arena.Add("type", "StorageContainer");
-                arena.Add("name", item.name);
-                arena.Add("prefabName", item.LookupPrefabName());
-                location = item.transform.position;
-                rotation = item.transform.rotation;
-            }
-            else if (collider.name.StartsWith("items/"))
-            {
-                arena.Add("type", "item");
+                Deployable item = collider.GetComponentInParent<Deployable>();
+                arena.Add("type", "Deployable");
                 arena.Add("name", collider.name);
                 arena.Add("prefabName", collider.name);
-                location = collider.transform.position;
-                rotation = collider.transform.rotation;
+                location = item.transform.position;
+                rotation = item.transform.rotation;
             }
 
             arena.Add("positionX", location.x.ToString("F99").TrimEnd('0'));

@@ -14,8 +14,7 @@ namespace Rustitute
         private Timer lanternTimer = new Timer();
         private Timer disappearTimer = new Timer();
         private Timer campingTimer = new Timer();
-        // :(
-        //private static List<DeployedItem> lanternList = new List<DeployedItem>();
+        private static List<Deployable> lanternList = new List<Deployable>();
         private static List<GameObject> disappearBlocks = new List<GameObject>(); // used across reloads
         private static List<DisappearItem> disappearList = new List<DisappearItem>();
         private static List<string> disappearUnique = new List<string>();

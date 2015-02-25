@@ -29,20 +29,24 @@ namespace Rustitute
 
                     foreach (var gameObject in disappearBlocks)
                     {
-                        var block = gameObject.GetComponent<BuildingBlock>();
+                        try
+                        {
+                            var block = gameObject.GetComponent<BuildingBlock>();
 
-                        string unique = Unique(block.LookupPrefabName(), block.transform.position, block.transform.rotation);
+                            string unique = Unique(block.LookupPrefabName(), block.transform.position, block.transform.rotation);
 
-                        DisappearItem state = new DisappearItem();
+                            DisappearItem state = new DisappearItem();
 
-                        state.Block = block;
-                        state.Prefab = state.Block.LookupPrefabName();
-                        state.Location = state.Block.transform.position;
-                        state.Rotation = state.Block.transform.rotation;
-                        state.Grade = state.Block.grade;
+                            state.Block = block;
+                            state.Prefab = state.Block.LookupPrefabName();
+                            state.Location = state.Block.transform.position;
+                            state.Rotation = state.Block.transform.rotation;
+                            state.Grade = state.Block.grade;
 
-                        disappearList.Add(state);
-                        disappearUnique.Add(unique);
+                            disappearList.Add(state);
+                            disappearUnique.Add(unique);
+                        }
+                        catch (Exception ex) { }
                     }
                     //disappearList = (List<DisappearItem>) GlobalData["Rustitute_disappearList"];
                     //disappearUnique = (List<string>) GlobalData["Rustitute_disappearUnique"];
@@ -53,8 +57,7 @@ namespace Rustitute
                 Debug.Log(ex.ToString());
             }
 
-            // :(
-            //lanternList = GetArenaLanterns();
+            lanternList = GetArenaLanterns();
 
             workTimer.Interval = 1000 * 60 * 5;
             workTimer.Elapsed += (sender, e) => { Work(); };

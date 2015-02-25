@@ -5,6 +5,7 @@ using System.Linq;
 using Pluton;
 using Pluton.Events;
 using UnityEngine;
+using ItemContainer = ProtoBuf.ItemContainer;
 
 namespace Rustitute
 {
@@ -52,7 +53,7 @@ namespace Rustitute
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
                 {
                     int health = 0;
-                    int distance = 0;
+                    int distance = -1;
 
                     try
                     {
@@ -72,7 +73,7 @@ namespace Rustitute
                         Debug.Log("D: " + ex.ToString());
                     }
 
-                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + health + ",D:" + distance + "). ";
+                    playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + health + ",D:" + (distance == -1 ? "?" : distance.ToString()) + "). ";
                 }
                 SendMessage(cmd.User, null, "Online players: " + playersWithInfo);
             }
@@ -900,29 +901,9 @@ namespace Rustitute
                     player.basePlayer.SendEffect(cmd.quotedArgs[1]);
                 }
             }
-            else if (cmd.cmd == "prefabs" && cmd.User.Owner)
-            {
-                try
-                {
-                    var prefabs = World.GetPrefabNames();
-
-                    using (FileStream fs = new FileStream("prefabs.txt", FileMode.Create, FileAccess.Write))
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    {
-                        foreach (var prefab in prefabs)
-                        {
-                            sw.WriteLine(prefab);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log(ex.Message);
-                }
-            }
             else if (cmd.cmd == "test" && cmd.User.Owner)
             {
-
+                
             }
         }
     }

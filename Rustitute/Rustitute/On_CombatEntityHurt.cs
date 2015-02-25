@@ -12,6 +12,18 @@ namespace Rustitute
         {
             try
             {
+                if (he.Victim.Prefab == "items/lantern_deployed" && GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
+                {
+                    for (int i = 0; i < he.DamageAmounts.Count(); i++)
+                    {
+                        he.DamageAmounts[i] = 0;
+                    }
+                }
+            }
+            catch (Exception ex) { }
+
+            try
+            {
                 if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
                 {
                     int copySize = GetSettingInt("user_" + he.Attacker.ToPlayer().SteamID, "copy");
