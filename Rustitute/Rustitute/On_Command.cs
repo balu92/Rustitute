@@ -357,10 +357,22 @@ namespace Rustitute
                 foreach (Collider collider in castHits)
                 {
                     var sleepingBag = collider.GetComponent<SleepingBag>();
-                    if (sleepingBag)
+                    var toolCupboard = collider.GetComponent<BuildingPrivlidge>();
+
+                    int distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, collider.transform.position));
+
+                    if (sleepingBag != null)
+                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away: " + sleepingBag.deployerUserName);
+
+                    if (toolCupboard != null)
                     {
-                        int distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, collider.transform.position));
-                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away owned by " + sleepingBag.deployerUserName);
+                        if (toolCupboard.authorizedPlayers.Count > 0)
+                        {
+                            foreach (var player in toolCupboard.authorizedPlayers)
+                            {
+                                SendMessage(cmd.User, null, "Tool Cupboard " + distance + "m away: " + player.username);
+                            }
+                        }
                     }
                 }
             }
