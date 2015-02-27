@@ -60,7 +60,7 @@ namespace Rustitute
                 SendMessage(player, null, "  /tpx - Teleport to the position at your crosshair.");
                 SendMessage(player, null, "  /tparena - Teleport inside the arena.");
                 SendMessage(player, null, "  /heal - Completely heal yourself.");
-                SendMessage(player, null, "  /owner - List the owners of all sleeping bags within 50m.");
+                SendMessage(player, null, "  /owner - List the known user items within 50m.");
                 SendMessage(player, null, "  /give <user> <item> <qty> - Give an item to a user. Qty defaults to 1.");
                 //SendMessage(player, null, "  /airdrop <optionalUser> - Create an airdrop optionally above a given user.");
                 //SendMessage(player, null, "  /animal <user> - Spawn an animal at the users position.");
