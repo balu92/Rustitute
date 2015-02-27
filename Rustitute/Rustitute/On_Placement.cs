@@ -21,7 +21,7 @@ namespace Rustitute
 
             Vector2 arenaLocation = new Vector2(x, z);
 
-            if (Vector2.Distance(arenaLocation, new Vector2(be.Target.position.x, be.Target.position.z)) <= arenaBuildRestrictionSpace)
+            if (Vector2.Distance(arenaLocation, new Vector2(be.Builder.Location.x, be.Builder.Location.z)) <= arenaBuildRestrictionSpace)
             {
                 if (!GetSettingBool("user_" + be.Builder.SteamID, "arenabuild"))
                 {
