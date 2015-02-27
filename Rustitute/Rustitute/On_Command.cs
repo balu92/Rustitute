@@ -362,7 +362,7 @@ namespace Rustitute
                     int distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, collider.transform.position));
 
                     if (sleepingBag != null)
-                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away: " + sleepingBag.deployerUserName);
+                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away: " + BasePlayer.FindByID(sleepingBag.deployerUserID).displayName);
 
                     if (toolCupboard != null)
                     {
