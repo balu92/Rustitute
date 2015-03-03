@@ -13,27 +13,27 @@ namespace Rustitute
     {
         public void On_Command(CommandEvent cmd)
         {
-            if (cmd.cmd == "help" || cmd.cmd == "commands")
+            if (cmd.cmd == GetCmd("help"))
             {
                 Help(cmd.User);
             }
-            else if (cmd.cmd == "players" || cmd.cmd == "who")
+            else if (cmd.cmd == GetCmd("players"))
             {
-                SendMessage(cmd.User, null, "There are " + (Server.ActivePlayers.Count) + " players online and " + (Server.GetServer().SleepingPlayers.Count) + " sleeping players.");
+                SendMessage(cmd.User, null, String.Format(GetText("Words_players"), (Server.ActivePlayers.Count), (Server.GetServer().SleepingPlayers.Count)));
 
                 String playersWithNoInfo = "";
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
                 {
                     playersWithNoInfo += Server.ActivePlayers[i].Name + ". ";
                 }
-                SendMessage(cmd.User, null, "Online players: " + playersWithNoInfo);
+                SendMessage(cmd.User, null, GetText("Words_playersOnline") + " " + playersWithNoInfo);
             }
-            else if (cmd.cmd == "arenaplayers")
+            else if (cmd.cmd == GetCmd("arenaplayers"))
             {
                 IDictionary<string, string> arenaPlayers = PlayersInArena();
-                string arenaS = arenaPlayers.Count() == 1 ? "" : "s";
+                string arenaS = arenaPlayers.Count() == 1 ? "" : GetText("Words_plural");
 
-                SendMessage(cmd.User, null, "There are " + arenaPlayers.Count() + " player" + arenaS + " in the arena.");
+                SendMessage(cmd.User, null, String.Format(GetText("Words_arenaPlayers"), arenaPlayers.Count(), arenaS));
 
                 if (arenaPlayers.Any())
                 {
@@ -42,12 +42,12 @@ namespace Rustitute
                     {
                         playersWithNoInfo += player.Value + ". ";
                     }
-                    SendMessage(cmd.User, null, "Arena players: " + playersWithNoInfo);
+                    SendMessage(cmd.User, null, GetText("Words_arenaPlayersOnline") + " " + playersWithNoInfo);
                 }
             }
-            else if ((cmd.cmd == "aplayers" || cmd.cmd == "awho") && (cmd.User.Owner))
+            else if (cmd.cmd == GetCmd("aplayers") && cmd.User.Owner)
             {
-                SendMessage(cmd.User, null, "There are " + (Server.ActivePlayers.Count) + " players online and " + (Server.GetServer().SleepingPlayers.Count) + " sleeping players.");
+                SendMessage(cmd.User, null, String.Format(GetText("Words_players"), (Server.ActivePlayers.Count), (Server.GetServer().SleepingPlayers.Count)));
 
                 String playersWithInfo = "";
                 for (var i = 0; i < Server.ActivePlayers.Count; i++)
@@ -75,56 +75,55 @@ namespace Rustitute
 
                     playersWithInfo += Server.ActivePlayers[i].Name + " (H:" + health + ",D:" + (distance == -1 ? "?" : distance.ToString()) + "). ";
                 }
-                SendMessage(cmd.User, null, "Online players: " + playersWithInfo);
+                SendMessage(cmd.User, null, GetText("Words_playersOnline") + " " + playersWithInfo);
             }
-            else if (cmd.cmd == "location" || cmd.cmd == "loc" || cmd.cmd == "whereami")
+            else if (cmd.cmd == GetCmd("location"))
             {
-                SendMessage(cmd.User, null,
-                    "Your location: X=" + (cmd.User.X) + " Y=" + (cmd.User.Y) + " Z=" + (cmd.User.Z) + " facing " + GetDirectionFromAngle(cmd.User.basePlayer.eyes.rotation.eulerAngles.y));
+                SendMessage(cmd.User, null, String.Format(GetText("Words_location"), cmd.User.X, cmd.User.Y, cmd.User.Z, GetDirectionFromAngle(cmd.User.basePlayer.eyes.rotation.eulerAngles.y)));
             }
-            else if ((cmd.cmd == "alocation" || cmd.cmd == "aloc") && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("alocation") && cmd.User.Owner)
             {
                 Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                 if (otherPlayer == null)
                 {
-                    SendMessage(cmd.User, null, "Player not found!");
+                    SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                     return;
                 }
-                SendMessage(cmd.User, null, "Location of " + otherPlayer.Name + ": X=" + (otherPlayer.X) + " Y=" + (otherPlayer.Y) + " Z=" + (otherPlayer.Z) + " facing " + GetDirectionFromAngle(cmd.User.basePlayer.eyes.rotation.eulerAngles.y));
+                SendMessage(cmd.User, null, String.Format(GetText("Words_location"), otherPlayer.X, otherPlayer.Y, otherPlayer.Z, GetDirectionFromAngle(otherPlayer.basePlayer.eyes.rotation.eulerAngles.y)));
             }
-            else if (cmd.cmd == "tphome")
+            else if (cmd.cmd == GetCmd("tphome"))
             {
-                if (TimeRestrict(cmd.User, "attacked", 15, "You cannot teleport while under attack!"))
+                if (TimeRestrict(cmd.User, "attacked", 15, GetText("Words_TPUnderAttack")))
                     return;
 
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
-                    SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPArena"));
                     return;
                 }
 
                 if (GetSetting("user_" + cmd.User.SteamID, "tpHomeX").Length == 0)
-                    SendMessage(cmd.User, null, "Your have no home position to teleport to!");
+                    SendMessage(cmd.User, null, GetText("Words_TPNoHome"));
                 else
                 {
                     float x = float.Parse(GetSetting("user_" + cmd.User.SteamID, "tpHomeX"));
                     float y = float.Parse(GetSetting("user_" + cmd.User.SteamID, "tpHomeY"));
                     float z = float.Parse(GetSetting("user_" + cmd.User.SteamID, "tpHomeZ"));
                     cmd.User.Teleport(x, y, z);
-                    SendMessage(cmd.User, null, "You have been teleported home!");
+                    SendMessage(cmd.User, null, GetText("Words_TPHome"));
                 }
             }
-            else if (cmd.cmd == "tpsethome")
+            else if (cmd.cmd == GetCmd("tpsethome"))
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
-                    SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPArena"));
                     return;
                 }
 
                 if (IsInArena(cmd.User.Location))
                 {
-                    SendMessage(cmd.User, null, "You cannot set your home position this close to the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPTooCloseToArena"));
                     return;
                 }
 
@@ -132,13 +131,13 @@ namespace Rustitute
                 SetSetting("user_" + cmd.User.SteamID, "tpHomeY", cmd.User.Location.y.ToString());
                 SetSetting("user_" + cmd.User.SteamID, "tpHomeZ", cmd.User.Location.z.ToString());
 
-                SendMessage(cmd.User, null, "Your home position has been set");
+                SendMessage(cmd.User, null, GetText("Words_TPHomeSet"));
             }
-            else if (cmd.cmd == "tp")
+            else if (cmd.cmd == GetCmd("tp"))
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
-                    SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPArena"));
                     return;
                 }
 
@@ -149,59 +148,59 @@ namespace Rustitute
 
                     if (firstPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "First player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_FirstNotFound"));
                         return;
                     }
 
                     if (secondPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Second player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_SecondNotFound"));
                         return;
                     }
 
                     if (GetSettingBool("user_" + firstPlayer.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, firstPlayer.Name + " is in the arena and cannot be teleported!");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserInArena"), firstPlayer.Name));
                         return;
                     }
 
                     if (GetSettingBool("user_" + secondPlayer.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, secondPlayer.Name + " is in the arena and cannot be teleported to!");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserInArena2"), secondPlayer.Name));
                         return;
                     }
 
                     if (firstPlayer != null && secondPlayer != null)
                     {
                         firstPlayer.Teleport(secondPlayer.Location);
-                        SendMessage(cmd.User, null, firstPlayer.Name + " has been teleported to " + secondPlayer.Name);
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserToUser"), firstPlayer.Name, secondPlayer.Name));
                     }
                 }
                 else if (cmd.quotedArgs.Count() == 1)
                 {
-                    if (TimeRestrict(cmd.User, "attacked", 15, "You cannot teleport while under attack!"))
+                    if (TimeRestrict(cmd.User, "attacked", 15, GetText("Words_TPUnderAttack")))
                         return;
 
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     if (otherPlayer.SteamID == cmd.User.SteamID)
                     {
-                        SendMessage(cmd.User, null, "You cannot teleport to yourself!");
+                        SendMessage(cmd.User, null, GetText("Words_TPNoSelf"));
                         return;
                     }
 
                     if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, otherPlayer.Name + "is in the arena and cannot be teleported to!");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserInArena2"), otherPlayer.Name));
                         return;
                     }
 
-                    if (TimeRestrict(cmd.User, cmd.cmd, 60*3, "You must wait 3 minutes between teleports!"))
+                    if (TimeRestrict(cmd.User, cmd.cmd, 60 * 3, GetText("Words_TPWaitTime")))
                         return;
 
                     if (otherPlayer != null)
@@ -210,7 +209,7 @@ namespace Rustitute
                         {
                             TimeRestrictSet(cmd.User, cmd.cmd);
                             cmd.User.Teleport(otherPlayer.Location);
-                            SendMessage(cmd.User, null, "You have been teleported to " + otherPlayer.Name);
+                            SendMessage(cmd.User, null, String.Format(GetText("Words_TPToUser"), otherPlayer.Name));
                         }
                         else
                         {
@@ -218,20 +217,20 @@ namespace Rustitute
 
                             if ((GetSetting("user_" + otherPlayer.SteamID, "tpFrom").Length > 1) && (otherTime <= 30))
                             {
-                                SendMessage(cmd.User, null, "That player already has a pending teleport request. Try again in 30 seconds.");
+                                SendMessage(cmd.User, null, GetText("Words_TPPending"));
                                 return;
                             }
 
                             SetSetting("user_" + otherPlayer.SteamID, "tpFrom", cmd.User.SteamID);
                             SetSetting("user_" + otherPlayer.SteamID, "tpFromTime", Epoch().ToString());
 
-                            SendMessage(cmd.User, null, "Teleport request sent to " + otherPlayer.Name);
-                            SendMessage(otherPlayer, null, "Teleport request from " + cmd.User.Name + ". Type /tpa to accept the request within 30 seconds.");
+                            SendMessage(cmd.User, null, String.Format(GetText("Words_TPRequestSent"), otherPlayer.Name));
+                            SendMessage(otherPlayer, null, String.Format(GetText("Words_TPRequestFrom"), cmd.User.Name));
                         }
                     }
                 }
             }
-            else if (cmd.cmd == "tpaccept" || cmd.cmd == "tpa")
+            else if (cmd.cmd == GetCmd("tpa"))
             {
                 try
                 {
@@ -243,7 +242,7 @@ namespace Rustitute
                         var fromPlayer = Server.FindPlayer(tpFrom);
                         if (fromPlayer.Offline)
                         {
-                            SendMessage(cmd.User, null, "The user requesting the teleport is not online.");
+                            SendMessage(cmd.User, null, GetText("Words_TPNotOnline"));
                             return;
                         }
 
@@ -253,11 +252,11 @@ namespace Rustitute
                         SetSetting("user_" + cmd.User.SteamID, "tpFromTime", "0");
 
                         fromPlayer.Teleport(cmd.User.Location);
-                        SendMessage(fromPlayer, null, "You have been teleported to " + cmd.User.Name);
+                        SendMessage(fromPlayer, null, String.Format(GetText("Words_TPdTo"), cmd.User.Name));
                     }
                     else
                     {
-                        SendMessage(cmd.User, null, "You have no teleport request.");
+                        SendMessage(cmd.User, null, GetText("Words_TPNoRequest"));
                     }
                 }
                 catch (Exception ex)
@@ -265,40 +264,40 @@ namespace Rustitute
                     
                 }
             }
-            else if (cmd.cmd == "tpwhitelist" || cmd.cmd == "tpw")
+            else if (cmd.cmd == GetCmd("tpw"))
             {
                 Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                 if (otherPlayer == null)
                 {
-                    SendMessage(cmd.User, null, "Player not found!");
+                    SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                     return;
                 }
 
                 if (GetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID, false);
-                    SendMessage(cmd.User, null, otherPlayer.Name + " removed from your teleport whitelist!");
+                    SendMessage(cmd.User, null, String.Format(GetText("Words_TPWRemoved"), otherPlayer.Name));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "tpw_" + otherPlayer.SteamID, true);
-                    SendMessage(cmd.User, null, otherPlayer.Name + " added to your teleport whitelist!");
+                    SendMessage(cmd.User, null, String.Format(GetText("Words_TPWAdded"), otherPlayer.Name));
                 }
             }
-            else if (cmd.cmd == "tparena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("tparena") && cmd.User.Owner)
             {
                 float x = float.Parse(GetSetting("Arena", "locationX"));
                 float y = float.Parse(GetSetting("Arena", "locationY"));
                 float z = float.Parse(GetSetting("Arena", "locationZ"));
 
                 cmd.User.Teleport(x, y, z);
-                SendMessage(cmd.User, null, "You have been teleported to the arena!");
+                SendMessage(cmd.User, null, GetText("Words_TPToArena"));
             }
-            else if (cmd.cmd == "tpto" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("tpto") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
-                    SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPArena"));
                     return;
                 }
 
@@ -307,50 +306,50 @@ namespace Rustitute
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     if (GetSettingBool("user_" + otherPlayer.SteamID, "inArena"))
                     {
-                        SendMessage(cmd.User, null, otherPlayer.Name + " is in the arean and cannot be teleported!");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserInArena"), otherPlayer.Name));
                         return;
                     }
 
                     otherPlayer.Teleport(float.Parse(cmd.quotedArgs[1]), float.Parse(cmd.quotedArgs[2]), float.Parse(cmd.quotedArgs[3]));
-                    SendMessage(cmd.User, null, otherPlayer.Name + "has been teleported!");
+                    SendMessage(cmd.User, null, String.Format(GetText("Words_TPUserTo"), otherPlayer.Name));
                 }
                 else if (cmd.quotedArgs.Count() == 3)
                 {
                     cmd.User.Teleport(float.Parse(cmd.quotedArgs[0]), float.Parse(cmd.quotedArgs[1]), float.Parse(cmd.quotedArgs[2]));
-                    SendMessage(cmd.User, null, "You have been teleported!");
+                    SendMessage(cmd.User, null, GetText("Words_TPd"));
                 }
             }
-            else if (cmd.cmd == "tpx" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("tpx") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                 {
-                    SendMessage(cmd.User, null, "You cannot teleport while in the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_TPArena"));
                     return;
                 }
 
                 Vector3 lookPoint = cmd.User.GetLookPoint(2000f);
                 if (Math.Abs(lookPoint.x) <= 0 && Math.Abs(lookPoint.y) <= 0 && Math.Abs(lookPoint.z) <= 0)
                 {
-                    SendMessage(cmd.User, null, "Crosshair position too far or invalid, aim a little closer!");
+                    SendMessage(cmd.User, null, GetText("Words_TPXFail"));
                 }
                 else
                 {
                     cmd.User.Teleport(lookPoint);
-                    SendMessage(cmd.User, null, "You have been teleported!");
+                    SendMessage(cmd.User, null, GetText("Words_TPd"));
                 }
             }
-            else if (cmd.cmd == "heal" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("heal") && cmd.User.Owner)
             {
                 Heal(cmd.User);
-                SendMessage(cmd.User, null, "You have been healed!");
+                SendMessage(cmd.User, null, GetText("Words_Healed"));
             }
-            else if (cmd.cmd == "owner" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("owner") && cmd.User.Owner)
             {
                 Collider[] castHits = Physics.OverlapSphere(cmd.User.Location, 50f, 1 << 8);
 
@@ -362,7 +361,7 @@ namespace Rustitute
                     int distance = Convert.ToInt32(Vector3.Distance(cmd.User.Location, collider.transform.position));
 
                     if (sleepingBag != null)
-                        SendMessage(cmd.User, null, "Sleeping Bag " + distance + "m away: " + BasePlayer.FindByID(sleepingBag.deployerUserID).displayName);
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_OwnerSleepingBag"), distance, GetText("Words_meters"), BasePlayer.FindByID(sleepingBag.deployerUserID).displayName));
 
                     if (toolCupboard != null)
                     {
@@ -370,13 +369,13 @@ namespace Rustitute
                         {
                             foreach (var player in toolCupboard.authorizedPlayers)
                             {
-                                SendMessage(cmd.User, null, "Tool Cupboard " + distance + "m away: " + player.username);
+                                SendMessage(cmd.User, null, String.Format(GetText("Words_OwnerToolCupboard"), distance, GetText("Words_meters"), player.username));
                             }
                         }
                     }
                 }
             }
-            else if (cmd.cmd == "give" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("give") && cmd.User.Owner)
             {
                 Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                 var item = cmd.quotedArgs[1];
@@ -387,17 +386,17 @@ namespace Rustitute
                 var itemId = InvItem.GetItemID(item);
                 if (itemId <= 0)
                 {
-                    SendMessage(cmd.User, null, "That item could not be found");
+                    SendMessage(cmd.User, null, GetText("Words_GiveNotFound"));
                     return;
                 }
 
                 otherPlayer.Inventory.Add(itemId, qty);
 
                 if (cmd.User.SteamID != otherPlayer.SteamID)
-                    SendMessage(cmd.User, null, qty + "x " + item + " has been given to " + otherPlayer.Name);
-                SendMessage(otherPlayer, null, qty + "x " + item + " has been given to you!");
+                    SendMessage(cmd.User, null, String.Format(GetText("Words_GiveTo"), qty, item, otherPlayer.Name));
+                SendMessage(otherPlayer, null, String.Format(GetText("Words_GiveToYou"), qty, item));
             }
-            else if (cmd.cmd == "jump" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("jump") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
@@ -406,22 +405,15 @@ namespace Rustitute
                 }
                 else if (cmd.quotedArgs.Count() == 2)
                 {
-                    /*
-                    float jumpAmountUp = float.Parse(cmd.quotedArgs[0]);
-                    float jumpAmountForward = float.Parse(cmd.quotedArgs[1]);
 
-                    var facing = cmd.User.basePlayer.eyes.rotation.eulerAngles.y;
-
-                    cmd.User.Teleport(cmd.User.X, cmd.User.Y + jumpAmountUp, cmd.User.Z);
-                    */
                 }
             }
-            else if (cmd.cmd == "starter")
+            else if (cmd.cmd == GetCmd("starter"))
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "inArena"))
                     return;
 
-                if (TimeRestrict(cmd.User, cmd.cmd, 60 * 30, "You must wait 30 minutes between starter kits!"))
+                if (TimeRestrict(cmd.User, cmd.cmd, 60 * 30, GetText("Words_StarterKitWaitTime")))
                     return;
                 
                 TimeRestrictSet(cmd.User, cmd.cmd);
@@ -439,9 +431,9 @@ namespace Rustitute
                 cmd.User.Inventory.Add(new InvItem("wolfmeat_cooked", 20), main);
                 cmd.User.Inventory.Add(new InvItem("ammo_pistol", 25), main);
 
-                SendMessage(cmd.User, null, "A starter kit has been given to you!");
+                SendMessage(cmd.User, null, GetText("Words_StarterKitGiven"));
             }
-            else if (cmd.cmd == "adminkit" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("adminkit") && cmd.User.Owner)
             {
                 var belt = cmd.User.Inventory._inv.containerBelt;
                 var wear = cmd.User.Inventory._inv.containerWear;
@@ -478,122 +470,97 @@ namespace Rustitute
                 cmd.User.Inventory.Add(new InvItem("urban_boots", 1), wear);
                 cmd.User.Inventory.Add(new InvItem("burlap_gloves", 1), wear);
 
-                SendMessage(cmd.User, null, "An admin kit has been given to you!");
+                SendMessage(cmd.User, null, GetText("Words_AdminKitGiven"));
             }
-            else if (cmd.cmd == "time")
+            else if (cmd.cmd == GetCmd("time"))
             {
                 if (cmd.quotedArgs.Count() == 1 && cmd.quotedArgs[0].Length > 0 && cmd.User.Owner)
                 {
                     World.Time = float.Parse(cmd.quotedArgs[0]);
-                    SendMessage(cmd.User, null, "Time set!");
+                    SendMessage(cmd.User, null, GetText("Words_TimeSet"));
                 }
                 else
                 {
                     var time = Mathf.RoundToInt(World.Time);
-                    string when = " in the morning";
+                    string when = " " + GetText("Words_TimeMorning");
                     if (time == 0)
-                        when = " at night";
+                        when = " " + GetText("Words_TimeNight");
                     else if (time == 12)
-                        when = " noon";
+                        when = " " + GetText("Words_TimeNoon");
                     else if (time >= 13)
                     {
-                        when = " in the afternoon";
+                        when = " " + GetText("Words_TimeAfternoon");
                         if (time >= 17)
-                            when = " in the evening";
+                            when = " " + GetText("Words_TimeEvening");
                         else if (time >= 20)
-                            when = " at night";
+                            when = " " + GetText("Words_TimeNight");
                         time -= 12;
                     }
-                    SendMessage(cmd.User, null, "It is currently around " + time + when);
+                    SendMessage(cmd.User, null, GetText("Words_TimeCurrentlyAround") + " " + time + when);
                 }
 
                 CheckLanterns();
             }
-            else if (cmd.cmd == "airdrop" && cmd.User.Owner && false)
-            {
-                if (cmd.quotedArgs.Count() == 1 && cmd.quotedArgs[0].Length > 0)
-                {
-                    World.AirDropAtPlayer(GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]));
-                    SendMessage(cmd.User, null, "An airdrop has been triggered above " + GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]).Name);
-                }
-                else
-                {
-                    World.AirDrop();
-                    SendMessage(cmd.User, null, "An airdrop has been triggered");
-                }
-            }
-            else if (cmd.cmd == "animal" && cmd.User.Owner && false)
-            {
-                World.SpawnAnimal("wolf", GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]).Location);
-                SendMessage(cmd.User, null, "A wolf has been spawned by " + GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]).Name);
-            }
-            else if (cmd.cmd == "adminmsg" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("adminmsg") && cmd.User.Owner)
             {
                 SendMessageToAdmins(cmd.User.Name + ": " + String.Join(" ", cmd.args));
             }
-            else if (cmd.cmd == "botname" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("botname") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1 && cmd.quotedArgs[0].Length > 0)
                 {
                     botName = SetSetting("Settings", "BotName", cmd.quotedArgs[0]);
                     Server.server_message_name = botName;
-                    SendMessage(cmd.User, null, "Bot name set to " + botName);
+                    SendMessage(cmd.User, null, GetText("Words_BotnameSet") + " " + botName);
                 }
             }
-            else if (cmd.cmd == "get" && cmd.User.Owner && false)
-            {
-                if (cmd.quotedArgs.Count() == 2 && cmd.quotedArgs[0].Length > 0 && cmd.quotedArgs[1].Length > 0)
-                {
-                    SendMessage(cmd.User, null, GetSetting(cmd.quotedArgs[0], cmd.quotedArgs[1]));
-                }
-            }
-            else if (cmd.cmd == "disappear" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("disappear") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "disappear"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "disappear", false);
-                    SendMessage(cmd.User, null, "Disappear mode disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_DisappearDisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "disappear", true);
-                    SendMessage(cmd.User, null, "Disappear mode enabled!");
+                    SendMessage(cmd.User, null, GetText("Words_DisappearEnabled"));
                 }
             }
-            else if (cmd.cmd == "ko" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("ko") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "ko"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "ko", false);
-                    SendMessage(cmd.User, null, "KO mode disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_KODisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "ko", true);
-                    SendMessage(cmd.User, null, "KO mode enabled!");
+                    SendMessage(cmd.User, null, GetText("Words_KOEnabled"));
                 }
             }
-            else if (cmd.cmd == "koall" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("koall") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "koall"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "koall", false);
-                    SendMessage(cmd.User, null, "KO All mode disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_KOAllDisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "koall", true);
-                    SendMessage(cmd.User, null, "KO All mode enabled!");
+                    SendMessage(cmd.User, null, GetText("Words_KOAllEnabled"));
                 }
             }
-            else if (cmd.cmd == "god" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("god") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
@@ -601,15 +568,15 @@ namespace Rustitute
                     {
                         SetSettingBool("user_" + otherPlayer.SteamID, "god", false);
                         otherPlayer.basePlayer.InitializeHealth(100, 100);
-                        SendMessage(cmd.User, null, "God mode disabled for " + otherPlayer.Name);
-                        SendMessage(otherPlayer, null, "Your god mode has been disabled!");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_GodDisabledFor"),otherPlayer.Name));
+                        SendMessage(otherPlayer, null, GetText("Words_YourGodDisabled"));
                     }
                     else
                     {
                         Heal(otherPlayer);
                         otherPlayer.basePlayer.InitializeHealth(float.MaxValue, float.MaxValue);
                         SetSettingBool("user_" + otherPlayer.SteamID, "god", true);
-                        SendMessage(cmd.User, null, "God mode enabled for " + otherPlayer.Name);
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_GodEnabledFor"), otherPlayer.Name));
                         SendMessage(otherPlayer, null, "You have been given god mode!");
                     }
                 }
@@ -619,57 +586,57 @@ namespace Rustitute
                     {
                         SetSettingBool("user_" + cmd.User.SteamID, "god", false);
                         cmd.User.basePlayer.InitializeHealth(100, 100);
-                        SendMessage(cmd.User, null, "God mode disabled!");
+                        SendMessage(cmd.User, null, GetText("Words_GodDisabled"));
                     }
                     else
                     {
                         Heal(cmd.User);
                         cmd.User.basePlayer.InitializeHealth(float.MaxValue, float.MaxValue);
                         SetSettingBool("user_" + cmd.User.SteamID, "god", true);
-                        SendMessage(cmd.User, null, "God mode enabled!");
+                        SendMessage(cmd.User, null, GetText("Words_GodEnabled"));
                     }
                 }
             }
-            else if (cmd.cmd == "arenabuild" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("arenabuild") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "arenabuild"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "arenabuild", false);
-                    SendMessage(cmd.User, null, "You can no longer build at the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_ArenaBuildDisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "arenabuild", true);
-                    SendMessage(cmd.User, null, "You can now build at the arena!");
+                    SendMessage(cmd.User, null, GetText("Words_ArenaBuildEnabled"));
                 }
             }
-            else if (cmd.cmd == "instamax" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("instamax") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "instamax"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "instamax", false);
-                    SendMessage(cmd.User, null, "Insta Max disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_InstaMaxDisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "instamax", true);
-                    SendMessage(cmd.User, null, "Insta Max enabled!");
+                    SendMessage(cmd.User, null, GetText("Words_InstaMaxEnabled"));
                 }
             }
-            else if (cmd.cmd == "nosleep")
+            else if (cmd.cmd == GetCmd("nosleep") && cmd.User.Owner)
             {
                 if (GetSettingBool("user_" + cmd.User.SteamID, "nosleep"))
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "nosleep", false);
-                    SendMessage(cmd.User, null, "You will now be sleeping after spawning");
+                    SendMessage(cmd.User, null, GetText("Words_NoSleepDisabled"));
                 }
                 else
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "nosleep", true);
-                    SendMessage(cmd.User, null, "You will now be awake after spawning");
+                    SendMessage(cmd.User, null, GetText("Words_NoSleepEnabled"));
                 }
             }
-            else if (cmd.cmd == "motd" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("motd") && cmd.User.Owner)
             {
                 if (!cmd.quotedArgs.Any())
                 {
@@ -679,175 +646,173 @@ namespace Rustitute
                 {
                     SetSetting("Settings", "motd", String.Join(" ", cmd.args));
                 }
-                SendMessage(cmd.User, null, "Motd set!");
+                SendMessage(cmd.User, null, GetText("Words_MotdSet"));
             }
-            else if (cmd.cmd == "copy" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("copy") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     SetSetting("user_" + cmd.User.SteamID, "copy", cmd.quotedArgs[0]);
-                    SendMessage(cmd.User, null, "Copy mode set to " + cmd.quotedArgs[0]);
+                    SendMessage(cmd.User, null, GetText("Words_CopyEnabled") + " " + cmd.quotedArgs[0]);
                 }
                 else
                 {
                     SetSetting("user_" + cmd.User.SteamID, "copy", "");
-                    SendMessage(cmd.User, null, "Copy mode disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_CopyDisabled"));
                 }
             }
-            else if (cmd.cmd == "destroy" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("destroy") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     DestroyEverything(cmd.User.Location, float.Parse(cmd.quotedArgs[0]));
                 }
             }
-            else if (cmd.cmd == "top10")
-            {
-
-            }
-            else if (cmd.cmd == "kick" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("kick") && (cmd.User.Owner || cmd.User.Moderator))
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     otherPlayer.Kick();
                 }
             }
-            else if (cmd.cmd == "kill" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("kill") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     otherPlayer.Kill();
                 }
             }
-            else if (cmd.cmd == "ban" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("ban") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     otherPlayer.Ban();
                 }
             }
-            else if (cmd.cmd == "mute" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("mute") && (cmd.User.Owner || cmd.User.Moderator))
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     if (GetSettingBool("user_" + otherPlayer.SteamID, "muted"))
                     {
                         SetSettingBool("user_" + otherPlayer.SteamID, "muted", false);
-                        SendMessage(cmd.User, null, otherPlayer.Name + " has been unmuted");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_Unmuted"), otherPlayer.Name));
                     }
                     else
                     {
                         SetSettingBool("user_" + otherPlayer.SteamID, "muted", true);
-                        SendMessage(cmd.User, null, otherPlayer.Name + " has been muted");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_Muted"), otherPlayer.Name));
                     }
                 }
             }
-            else if (cmd.cmd == "silence" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("silence") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
                     Player otherPlayer = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (otherPlayer == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
 
                     if (GetSettingBool("user_" + otherPlayer.SteamID, "silenced"))
                     {
                         SetSettingBool("user_" + otherPlayer.SteamID, "silenced", false);
-                        SendMessage(cmd.User, null, otherPlayer.Name + " has been unsilenced");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_Unsilenced"), otherPlayer.Name));
                     }
                     else
                     {
                         SetSettingBool("user_" + otherPlayer.SteamID, "silenced", true);
-                        SendMessage(cmd.User, null, otherPlayer.Name + " has been silenced");
+                        SendMessage(cmd.User, null, String.Format(GetText("Words_Silenced"), otherPlayer.Name));
                     }
                 }
             }
-            else if (cmd.cmd == "save" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("save") && cmd.User.Owner)
             {
                 ini.Save();
                 iniArena.Save();
-                SendMessage(cmd.User, null, "Rustitute data saved!");
+                iniLang.Save();
+                SendMessage(cmd.User, null, GetText("Words_Saved"));
             }
-            else if (cmd.cmd == "load" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("load") && cmd.User.Owner)
             {
                 ini = Plugin.GetIni(pluginIni);
                 iniArena = Plugin.GetIni(pluginIni + "Arena");
-                SendMessage(cmd.User, null, "Rustitute data loaded!");
+                iniLang = Plugin.GetIni(pluginIni + "Lang");
+                SendMessage(cmd.User, null, GetText("Words_Loaded"));
             }
-            else if (cmd.cmd == "togglearena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("togglearena") && cmd.User.Owner)
             {
                 if (GetSettingBool("Settings", "arenaEnabled"))
                 {
                     SetSettingBool("Settings", "arenaEnabled", false);
-                    SendMessage(cmd.User, null, "The arena has been disabled");
+                    SendMessage(cmd.User, null, GetText("Words_ArenaDisabled"));
                 }
                 else
                 {
                     SetSettingBool("Settings", "arenaEnabled", true);
-                    SendMessage(cmd.User, null, "The arena has been enabled");
+                    SendMessage(cmd.User, null, GetText("Words_ArenaEnabled"));
                 }
             }
-            else if (cmd.cmd == "logarena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("logarena") && cmd.User.Owner)
             {
                 LogArena(cmd);
             }
-            else if (cmd.cmd == "respawnarena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("respawnarena") && cmd.User.Owner)
             {
                 DestroyArena(cmd);
                 SpawnArena(cmd);
             }
-            else if (cmd.cmd == "spawnarena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("spawnarena") && cmd.User.Owner)
             {
                 SpawnArena(cmd);
             }
-            else if (cmd.cmd == "destroyarena" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("destroyarena") && cmd.User.Owner)
             {
                 DestroyArena(cmd);
             }
-            else if (cmd.cmd == "addspawn" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("addspawn") && cmd.User.Owner)
             {
                 AddSpawn(cmd);
             }
-            else if (cmd.cmd == "arenahere" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("arenahere") && cmd.User.Owner)
             {
                 ArenaHere(cmd);
             }
-            else if (cmd.cmd == "arena")
+            else if (cmd.cmd == GetCmd("arena"))
             {
                 Arena(cmd);
             }
-            else if (cmd.cmd == "achievements")
+            else if (cmd.cmd == GetCmd("achievements"))
             {
                 Player player = cmd.User;
                 if (cmd.quotedArgs.Count() == 1)
@@ -855,7 +820,7 @@ namespace Rustitute
                     player = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (player == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
                 }
@@ -866,17 +831,17 @@ namespace Rustitute
 
                 System.Array.Sort(userData);
 
-                SendMessage(cmd.User, null, "Achievements for " + player.Name);
+                SendMessage(cmd.User, null, String.Format(GetText("Words_AchievementsFor"), player.Name));
 
                 foreach (var item in userData)
                 {
                     if (item.StartsWith("achievement_"))
                     {
-                        SendMessage(cmd.User, null, "[Achievement] " + achievements[item.Replace("achievement_", "")]);
+                        SendMessage(cmd.User, null, "[" + GetText("Achievement") + "] " + achievements[item.Replace("achievement_", "")]);
                     }
                 }
             }
-            else if (cmd.cmd == "stats" || cmd.cmd == "mystats")
+            else if (cmd.cmd == GetCmd("stats"))
             {
                 Player player = cmd.User;
                 if (cmd.quotedArgs.Count() == 1)
@@ -884,19 +849,19 @@ namespace Rustitute
                     player = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (player == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
                 }
 
-                SendMessage(cmd.User, null, "Stats for " + player.Name);
-                SendMessage(cmd.User, null, "Kills: " + GetSetting("user_" + player.SteamID, "kills"));
-                SendMessage(cmd.User, null, "Arena Kills: " + GetSetting("user_" + player.SteamID, "killsArena"));
-                SendMessage(cmd.User, null, "Headshots: " + GetSetting("user_" + player.SteamID, "headshots"));
-                SendMessage(cmd.User, null, "Deaths: " + GetSetting("user_" + player.SteamID, "deaths"));
-                SendMessage(cmd.User, null, "Arena Deaths: " + GetSetting("user_" + player.SteamID, "deathsArena"));
+                SendMessage(cmd.User, null, String.Format(GetText("Words_StatsFor"), player.Name));
+                SendMessage(cmd.User, null, GetText("Words_StatsKills") + ": " + GetSetting("user_" + player.SteamID, "kills"));
+                SendMessage(cmd.User, null, GetText("Words_ArenaKills") + ": " + GetSetting("user_" + player.SteamID, "killsArena"));
+                SendMessage(cmd.User, null, GetText("Words_Headshots") + ": " + GetSetting("user_" + player.SteamID, "headshots"));
+                SendMessage(cmd.User, null, GetText("Words_Deaths") + ": " + GetSetting("user_" + player.SteamID, "deaths"));
+                SendMessage(cmd.User, null, GetText("Words_ArenaDeaths") + ": " + GetSetting("user_" + player.SteamID, "deathsArena"));
             }
-            else if (cmd.cmd == "fx" && cmd.User.Owner)
+            else if (cmd.cmd == GetCmd("fx") && cmd.User.Owner)
             {
                 if (cmd.quotedArgs.Count() == 1)
                 {
@@ -907,7 +872,7 @@ namespace Rustitute
                     Player player = GetPlayerFromPotentialPartialName(cmd.quotedArgs[0]);
                     if (player == null)
                     {
-                        SendMessage(cmd.User, null, "Player not found!");
+                        SendMessage(cmd.User, null, GetText("Words_PlayerNotFound"));
                         return;
                     }
                     player.basePlayer.SendEffect(cmd.quotedArgs[1]);

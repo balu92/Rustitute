@@ -11,6 +11,7 @@
 
             ini.Save();
             iniArena.Save();
+            iniLang.Save();
 
             //GlobalData["Rustitute_disappearList"] = disappearList;
             //GlobalData["Rustitute_disappearUnique"] = disappearUnique;

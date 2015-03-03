@@ -14,7 +14,7 @@ namespace Rustitute
         {
             if (!GetSettingBool("Settings", "arenaEnabled"))
             {
-                SendMessage(cmd.User, null, "The arena is not enabled.");
+                SendMessage(cmd.User, null, GetText("Arena_NotEnabled"));
                 return;
             }
 
@@ -24,7 +24,7 @@ namespace Rustitute
 
             if (ax == 0 && ay == 0 && az == 0)
             {
-                SendMessage(cmd.User, null, "The arena on this server has not been setup yet.");
+                SendMessage(cmd.User, null, GetText("Arena_NotSetup"));
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace Rustitute
 
                 cmd.User.Teleport(x, y, z);
 
-                SendMessage(null, null, cmd.User.Name + " has left the arena!");
+                SendMessage(null, null, String.Format(GetText("Arena_UserLeft"), cmd.User.Name));
             }
             else
             {
@@ -48,7 +48,7 @@ namespace Rustitute
                 {
                     SetSettingBool("user_" + cmd.User.SteamID, "god", false);
                     cmd.User.basePlayer.InitializeHealth(100, 100);
-                    SendMessage(cmd.User, null, "God mode disabled!");
+                    SendMessage(cmd.User, null, GetText("Words_GodDisabled"));
                 }
 
                 Achievement("JoinedArena", cmd.User);
@@ -129,8 +129,8 @@ namespace Rustitute
 
                 SendToArena(cmd.User);
 
-                SendMessage(null, null, cmd.User.Name + " has joined the arena!");
-                SendMessage(cmd.User, null, "The arena has no bleeding and no fall damage. Use doors to teleport. Enjoy!");
+                SendMessage(null, null, string.Format(GetText("Arena_UserJoined"), cmd.User.Name));
+                SendMessage(cmd.User, null, GetText("Arena_JoinMessage"));
             }
         }
 
@@ -138,7 +138,7 @@ namespace Rustitute
         {
             SavingArena = true;
 
-            SendMessageToAdmins("Logging arena... The server will be lagged out for a few seconds!");
+            SendMessageToAdmins(GetText("Arena_LoggingArena"));
 
             Dictionary<string, int> list = new Dictionary<string, int>();
 
@@ -231,7 +231,7 @@ namespace Rustitute
                 }
                 catch (Exception ex)
                 {
-                    SendMessageToAdmins("logarena disappearlist exception: " + ex.ToString());
+                    //SendMessageToAdmins("logarena disappearlist exception: " + ex.ToString());
                 }
 
                 if (arena.Any())
@@ -257,11 +257,11 @@ namespace Rustitute
                 Debug.Log(item.Value + "x " + item.Key);
             }
 
-            SendMessageToAdmins("Saving to file...");
+            SendMessageToAdmins(GetText("Arena_SavingToFile"));
             iniArena.Save();
             iniArena.SaveSettings(Plugin.ValidateRelativePath("arenas/" + "Arena-" + DateTime.Now.Ticks + ".ini"));
 
-            SendMessageToAdmins("Arena Logged!");
+            SendMessageToAdmins(GetText("Arena_LoggedArena"));
 
             SavingArena = false;
         }
@@ -361,7 +361,7 @@ namespace Rustitute
             }
 
             if (cmd != null)
-                SendMessage(cmd.User, null, "Arena Spawned!");
+                SendMessage(cmd.User, null, GetText("Arena_SpawnedArena"));
         }
 
         private void DestroyArena(CommandEvent cmd = null)
@@ -419,14 +419,14 @@ namespace Rustitute
             }
 
             if(cmd != null)
-                SendMessage(cmd.User, null, "Arena Destroyed!");
+                SendMessage(cmd.User, null, GetText("Arena_DestroyedArena"));
         }
 
         private void AddSpawn(CommandEvent cmd)
         {
             var location = cmd.User.Location.x + " " + cmd.User.Location.y + " " + cmd.User.Location.z;
             SetSetting("ArenaSpawn", location, location);
-            SendMessage(cmd.User, null, "Arena spawn position added!");
+            SendMessage(cmd.User, null, GetText("Arena_AddSpawn"));
         }
 
         private void ArenaHere(CommandEvent cmd)
@@ -435,7 +435,7 @@ namespace Rustitute
             SetSetting("Arena", "locationY", cmd.User.Location.y.ToString());
             SetSetting("Arena", "locationZ", cmd.User.Location.z.ToString());
 
-            SendMessage(cmd.User, null, "Arena center position set!");
+            SendMessage(cmd.User, null, GetText("Arena_SetCenter"));
         }
 
         private class ArenaTimer
@@ -477,13 +477,14 @@ namespace Rustitute
 
             if (arenaState.Counter <= 10)
             {
-                SendMessage(player, null, "Arena: Invincible for " + (11 - arenaState.Counter) + " more second" + ((11 - arenaState.Counter) == 1 ? "" : "s"));
+                var plural = ((11 - arenaState.Counter) == 1 ? "" : GetText("Words_plural"));
+                SendMessage(player, null, "[" + GetText("Arena_ARENA") + "] " + String.Format(GetText("Arena_InvincibleFor"), (11 - arenaState.Counter), plural));
                 CreateArenaSpawnTimer(arenaState.SteamID, 1000, ++arenaState.Counter);
             }
             else if (arenaState.Counter == 11)
             {
                 SetSettingBool("user_" + arenaState.SteamID, "godArena", false);
-                SendMessage(player, null, "Arena: No longer invincible!");
+                SendMessage(player, null, "[" + GetText("Arena_ARENA") + "] " + GetText("Arena_NoLongerInvincible"));
 
                 var arenaClothes_helmet = GetSetting("user_" + player.SteamID, "arenaClothes_helmet");
                 var arenaClothes_shirt = GetSetting("user_" + player.SteamID, "arenaClothes_shirt");

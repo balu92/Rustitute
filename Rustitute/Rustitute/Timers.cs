@@ -36,19 +36,19 @@ namespace Rustitute
                 bool hasDisappear = GetSettingInt("user_" + player.SteamID, "disappear") != 0;
 
                 if (hasGod)
-                    SendMessage(player, null, "[Reminder] God mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderGod"));
                 if (hasKO)
-                    SendMessage(player, null, "[Reminder] KO mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderKo"));
                 if (hasKOAll)
-                    SendMessage(player, null, "[Reminder] KO All mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderKoAll"));
                 if (hasArenaBuild)
-                    SendMessage(player, null, "[Reminder] Arena build mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderArenaBuild"));
                 if (hasInstaMax)
-                    SendMessage(player, null, "[Reminder] Insta Max mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderInstaMax"));
                 if (hasCopy)
-                    SendMessage(player, null, "[Reminder] Copy mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderCopy"));
                 if (hasDisappear)
-                    SendMessage(player, null, "[Reminder] Disappear mode is active!");
+                    SendMessage(player, null, "[" + GetText("Words_Reminder") + "] " + GetText("Words_ReminderDisappear"));
             }
 
             ini.Save();
@@ -117,7 +117,7 @@ namespace Rustitute
 
                     if (campingCounter >= 10)
                     {
-                        SendMessage(null, null, "[ARENA] " + Server.ActivePlayers[i].Name + " is being removed from the arena for camping/idling.");
+                        SendMessage(null, null, "[" + GetText("Arena_ARENA") + "] " + String.Format(GetText("Arena_CampingRemoved"), Server.ActivePlayers[i].Name));
 
                         SetSettingBool("user_" + Server.ActivePlayers[i].SteamID, "inArena", false);
                         SetSettingBool("user_" + Server.ActivePlayers[i].SteamID, "godArena", false);
@@ -129,7 +129,7 @@ namespace Rustitute
                     {
                         for (var ii = 0; ii < Server.ActivePlayers.Count; ii++)
                         {
-                            SendMessage(Server.ActivePlayers[ii], null, "[ARENA] " + Server.ActivePlayers[i].Name + " is camping!" + (campingCounter == 8 ? " Last Warning!" : ""));
+                            SendMessage(Server.ActivePlayers[ii], null, "[" + GetText("Arena_ARENA") + "] " + String.Format(GetText("Arena_CampingWarning"), Server.ActivePlayers[i].Name) + (campingCounter == 8 ? " " + GetText("Arena_CampingLastWarning") : ""));
                         }
                     }
 

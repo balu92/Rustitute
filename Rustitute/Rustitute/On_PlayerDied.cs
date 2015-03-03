@@ -27,7 +27,7 @@ namespace Rustitute
 
                     if (attacker != null && de.Victim.basePlayer.IsSleeping())
                     {
-                        sleeping = " while they were sleeping";
+                        sleeping = " " + GetText("Words_WhileSleeping");
 
                         SetSetting("user_" + de.Attacker.ToPlayer().SteamID, "sleeperKills", ((GetSettingInt("user_" + de.Attacker.ToPlayer().SteamID, "sleeperKills")) + 1).ToString());
                         int totalSleeperKills = GetSettingInt("user_" + de.Attacker.ToPlayer().SteamID, "sleeperKills");
@@ -46,7 +46,7 @@ namespace Rustitute
 
                 var arena = "";
                 if (attacker != null && GetSettingBool("user_" + de.Attacker.ToPlayer().SteamID, "inArena"))
-                    arena = "[ARENA] ";
+                    arena = "["+GetText("Arena_ARENA") + "] ";
 
                 try
                 {
@@ -73,7 +73,7 @@ namespace Rustitute
                     if (attacker != null && de.Victim.SteamID.Length > 0 && de.Attacker.ToPlayer().SteamID.Length > 0)
                     {
                         if (de.DamageType == DamageType.Bleeding)
-                            SendMessage(null, null, arena + de.Victim.Name + " bled to death");
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_BledToDeath"));
                         else
                         {
                             if (arena.Length > 0)
@@ -110,14 +110,14 @@ namespace Rustitute
                                 if (totalHeadshots == 10000)
                                     Achievement("Headshots10000", de.Attacker.ToPlayer());
 
-                                extraInfo = " - HEADSHOT!";
+                                extraInfo = " " + GetText("Words_Headshot");
                             }
                             else if (de.HitBone == "pelvis")
-                                extraInfo = " - COCK SHOT!";
+                                extraInfo = " " + GetText("Words_CockShot");
 
                             int shotDistance = Mathf.RoundToInt(Vector3.Distance(de.Attacker.Location, de.Victim.Location));
 
-                            SendMessage(null, null, arena + de.Attacker.Name + " killed " + de.Victim.Name + sleeping + " - " + de.Weapon.Name + " @ " + shotDistance + "m" + extraInfo);
+                            SendMessage(null, null, arena + de.Attacker.Name + " " + GetText("Words_killed") + " " + de.Victim.Name + sleeping + " - " + de.Weapon.Name + " @ " + shotDistance + GetText("Words_meters") + extraInfo);
 
                             if (shotDistance >= 50)
                                 Achievement("KillDistance50", de.Attacker.ToPlayer());
@@ -140,27 +140,27 @@ namespace Rustitute
                     {
                         case DamageType.Stab:
                             if (de.Attacker.Name == "items/beartrap")
-                                SendMessage(null, null, arena + de.Victim.Name + " was killed by a bear trap");
+                                SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_DeathBearTrap"));
                             else
-                                SendMessage(null, null, arena + de.Victim.Name + " died" + sleeping + ": " + de.DamageType);
+                                SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_died") + sleeping + ": " + de.DamageType);
                             break;
                         case DamageType.Heat:
-                            SendMessage(null, null, arena + de.Victim.Name + " burnt to death");
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_DeathBurnt"));
                             break;
                         case DamageType.Suicide:
-                            SendMessage(null, null, arena + de.Victim.Name + " commited suicide");
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_DeathSuicide"));
                             break;
                         case DamageType.Fall:
-                            SendMessage(null, null, arena + de.Victim.Name + " fell and died");
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_DeathFell"));
                             break;
                         case DamageType.Drowned:
-                            SendMessage(null, null, arena + de.Victim.Name + " drowned");
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_DeathDrowned"));
                             break;
                         case DamageType.Generic:
-                            SendMessage(null, null, arena + de.Victim.Name + " died" + sleeping);
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_died") + sleeping);
                             break;
                         default:
-                            SendMessage(null, null, arena + de.Victim.Name + " died" + sleeping + ": " + de.DamageType);
+                            SendMessage(null, null, arena + de.Victim.Name + " " + GetText("Words_died") + sleeping + ": " + de.DamageType);
                             break;
                     }
                 }

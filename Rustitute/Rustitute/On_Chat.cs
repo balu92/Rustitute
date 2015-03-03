@@ -17,7 +17,7 @@ namespace Rustitute
             {
                 arg.BroadcastName = "";
                 arg.FinalText = "";
-                SendMessage(arg.User, null, "You have been muted and cannot chat!");
+                SendMessage(arg.User, null, GetText("Words_YouAreMuted"));
             }
         }
     }

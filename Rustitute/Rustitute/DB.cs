@@ -28,6 +28,36 @@ namespace Rustitute
             return ret;
         }
 
+        private bool HasText(string name)
+        {
+            return iniLang.ContainsSetting("Lang", name);
+        }
+
+        private bool HasCmd(string name)
+        {
+            return iniLang.ContainsSetting("Commands", name);
+        }
+
+        private string GetText(string name)
+        {
+            return iniLang.GetSetting("Lang", name);
+        }
+
+        private string GetCmd(string name)
+        {
+            return iniLang.GetSetting("Commands", name);
+        }
+
+        private void SetText(string name, string value)
+        {
+            iniLang.SetSetting("Lang", name, value);
+        }
+
+        private void SetCmd(string name, string value)
+        {
+            iniLang.SetSetting("Commands", name, value);
+        }
+
         private string GetSetting(string section, string name)
         {
             return ini.GetSetting(section, name);

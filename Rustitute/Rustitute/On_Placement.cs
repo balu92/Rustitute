@@ -1,4 +1,5 @@
-﻿using Pluton.Events;
+﻿using System;
+using Pluton.Events;
 using UnityEngine;
 
 namespace Rustitute
@@ -25,7 +26,7 @@ namespace Rustitute
             {
                 if (!GetSettingBool("user_" + be.Builder.SteamID, "arenabuild"))
                 {
-                    be.Destroy("You cannot build near the arena!");
+                    be.Destroy(GetText("Arena_CantBuildNear"));
                     return;
                 }
             }

@@ -10,7 +10,7 @@ namespace Rustitute
             {
                 if (GetSettingBool("user_" + due.Player.SteamID, "inArena"))
                 {
-                    due.Deny("Teleporting you...");
+                    due.Deny(GetText("Words_TeleportingYou"));
                     //due.Player.Teleport(GetRandomArenaSpawn());
 
                     due.Player.basePlayer.transform.position = GetRandomArenaSpawn();

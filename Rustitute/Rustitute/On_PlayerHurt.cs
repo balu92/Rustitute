@@ -31,7 +31,7 @@ namespace Rustitute
 
                     if (arenaCheck == 1)
                     {
-                        SendMessage(de.Attacker.ToPlayer(), null, "You cannot hurt this player! Only one of you is in arena mode.");
+                        SendMessage(de.Attacker.ToPlayer(), null, GetText("Words_CantHurtPlayerHalfArena"));
 
                         for (int i = 0; i < de.DamageAmounts.Count(); i++)
                         {
@@ -66,7 +66,7 @@ namespace Rustitute
                             if ((GetSettingBool("user_" + de.Victim.SteamID, "godArena")) && (GetSettingBool("user_" + de.Victim.SteamID, "inArena")))
                             {
                                 if (attacker != null)
-                                    SendMessage(de.Attacker.ToPlayer(), null, "You cannot harm players for 10 seconds after they spawn!");
+                                    SendMessage(de.Attacker.ToPlayer(), null, GetText("Arena_CantHarmThey"));
 
                                 for (int i = 0; i < de.DamageAmounts.Count(); i++)
                                 {
@@ -77,7 +77,7 @@ namespace Rustitute
                             if (attacker != null && (GetSettingBool("user_" + attacker.SteamID, "godArena")) && (GetSettingBool("user_" + attacker.SteamID, "inArena")))
                             {
                                 if (attacker != null)
-                                    SendMessage(de.Attacker.ToPlayer(), null, "You cannot harm players for 10 seconds after you spawn!");
+                                    SendMessage(de.Attacker.ToPlayer(), null, GetText("Arena_CantHarmYou"));
 
                                 for (int i = 0; i < de.DamageAmounts.Count(); i++)
                                 {
@@ -93,8 +93,8 @@ namespace Rustitute
                                 Heal(de.Victim);
                                 if (attacker != null && de.Victim.SteamID != de.Attacker.ToPlayer().SteamID)
                                 {
-                                    SendMessage(de.Attacker.ToPlayer(), null, "This person has god mode and cannot be damaged!");
-                                    SendMessage(de.Victim, null, "You have god mode and were just attacked by " + de.Attacker.Name);
+                                    SendMessage(de.Attacker.ToPlayer(), null, GetText("Words_GodHurtThem"));
+                                    SendMessage(de.Victim, null, String.Format(GetText("Words_GodHurtYou"), de.Attacker.Name));
                                 }
                             }
                         }

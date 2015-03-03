@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Pluton;
 
 namespace Rustitute
@@ -22,21 +23,25 @@ namespace Rustitute
             if (GetSettingBool("user_" + player.SteamID, "god"))
                 SetSettingBool("user_" + player.SteamID, "god", false);
 
-            SendMessage(null, null, player.Name + " has joined!");
+            SendMessage(null, null, player.Name + " " + GetText("Words_HasJoined"));
 
             var arenaCount = PlayersInArena().Count();
-            string arenaS = arenaCount == 1 ? "" : "s";
-            string playerS = (Server.ActivePlayers.Count - 1) == 1 ? "" : "s";
+            string arenaS = arenaCount == 1 ? "" : GetText("Words_plural");
+            string playerS = (Server.ActivePlayers.Count - 1) == 1 ? "" : GetText("Words_plural");
 
-            SendMessage(player, null, "Welcome to " + server.hostname + "! This server is running Rustitute.");
-            SendMessage(player, null, "There are currently " + (Server.ActivePlayers.Count - 1) + " other player" + playerS + " online and " + arenaCount + " player" + arenaS + " in the arena");
+
+            SendMessage(player, null, String.Format(GetText("Words_Welcome"), server.hostname));
+            SendMessage(player, null, String.Format(GetText("Words_Welcome2"), (Server.ActivePlayers.Count - 1), playerS, arenaCount, arenaS));
 
             var motd = GetSetting("Settings", "motd");
             if (motd.Length > 0)
                 SendMessage(player, null, motd);
 
-            SendMessage(player, null, "Type /starter to get a basic kit and /help for a full list of available commands.");
-            SendMessage(player, null, "Type /arena to join the arena!.");
+            if (GetText("Words_Welcome3").Length > 0)
+                SendMessage(player, null, GetText("Words_Welcome3"));
+
+            if (GetText("Words_Welcome4").Length > 0)
+                SendMessage(player, null, GetText("Words_Welcome4"));
 
             if (GetSettingBool("user_" + player.SteamID, "inArena"))
                 SetSettingBool("user_" + player.SteamID, "inArena", false);

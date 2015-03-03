@@ -131,7 +131,7 @@ namespace Rustitute
 
                             if(attacker != null)
                                 if (!GetSettingBool("user_" + he.Attacker.ToPlayer().SteamID, "inArena"))
-                                    SendMessage(he.Attacker.ToPlayer(), null, "You cannot damage the arena!");
+                                    SendMessage(he.Attacker.ToPlayer(), null, GetText("Arena_CantDamageArena"));
                         }
                     }
                 }

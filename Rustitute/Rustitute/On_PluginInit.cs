@@ -16,10 +16,15 @@ namespace Rustitute
             if (!Plugin.IniExists(pluginIni + "Arena"))
                 Plugin.CreateIni(pluginIni + "Arena");
 
+            if (!Plugin.IniExists(pluginIni + "Lang"))
+                Plugin.CreateIni(pluginIni + "Lang");
+
             ini = Plugin.GetIni(pluginIni);
             iniArena = Plugin.GetIni(pluginIni + "Arena");
+            iniLang = Plugin.GetIni(pluginIni + "Lang");
 
             LoadSettings();
+            LoadLang();
 
             try
             {

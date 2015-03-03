@@ -11,10 +11,10 @@ namespace Rustitute
 
             if (Epoch() - lastDeath <= 15)
             {
-                leftMessage = " RAGE QUIT!";
+                leftMessage = " " + GetText("Words_RageQuit");
             }
 
-            SendMessage(null, null, player.Name + " has left!" + leftMessage);
+            SendMessage(null, null, player.Name + " " + GetText("Words_HasLeft") + leftMessage);
             if (GetSettingBool("user_" + player.SteamID, "inArena"))
             {
                 player.Kill();
